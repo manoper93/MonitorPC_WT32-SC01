@@ -1,4 +1,4 @@
-![20230221_195041](https://user-images.githubusercontent.com/70864023/222975868-d6bd7bee-8a95-4ace-b680-840b90405f3c.jpg)
+![20230221_195041aa](https://user-images.githubusercontent.com/70864023/222975950-0b791d5f-fe44-46d5-a8be-7de803ef2561.jpg)
 
 MonitorPC with support WT32-SC01
 
