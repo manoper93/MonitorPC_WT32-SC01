@@ -1,4 +1,4 @@
-English Google Translate:
+![20230221_195041](https://user-images.githubusercontent.com/70864023/222975868-d6bd7bee-8a95-4ace-b680-840b90405f3c.jpg)
 
 MonitorPC with support WT32-SC01
 
@@ -64,3 +64,6 @@ UNTIL HERE ARDUINO IS DONE
 21. To finish opening Task Manager in the Startup Applications location will be the respective program created and it is your choice to leave autoboot or not.
 
 Thanks, if you need help: https://discord.gg/RE3XevS
+
+![Captura de ecrã 2023-03-05 130838](https://user-images.githubusercontent.com/70864023/222975829-b03009bb-b252-49b1-9d80-63daa47c2fa2.png)
+
