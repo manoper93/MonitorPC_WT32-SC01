@@ -11,7 +11,7 @@
 //-------------- SELECT --------------------
 #define ENABLE_CAP_TOUCH
 //#define ENABLE_RES_TOUCH
-//#define NO_TOUCH 
+//#define NO_TOUCH
 //------------------------------------------
 #define CUSTOM_TOUCH_SDA 18
 #define CUSTOM_TOUCH_SCL 19
@@ -26,40 +26,41 @@ FT6236 ts = FT6236();
 #endif
 
 int i = 0;
+int a = 0;
 
 // Change this to match the script on the host
 int redrawtime = 1000;
 
 // The scale of the Y-axis per graph
-int ymax_cpu = 120; // In Celcius
-int ymax_fan = 120; // In rpm
-int ymax_ram = 120;  // In MB
-int ymax_hdd = 120;  // In GB
-int ymax_gpu = 120;  // In Celcius
-int ymax_procs = 120;  // In # (numbers)
+int ymax_cpu = 100; //Percentagem Utilizacao CPU
+int ymax_fan = 100; //Percentagem Memoria RAM
+int ymax_ram = 120;  //Temperatura CPU
+int ymax_hdd = 100;  //Percentagem Utilizacao GPU
+int ymax_gpu = 100;  //Percentagem Memoria GPU
+int ymax_procs = 120;  //Temperatura GPU
 
 // Define warning levels, change this as you like
-int warn_cpu = 75; // Higher than, in C
-int warn_rpm = 75; // Higher than, in RPM
-int warn_ram = 75; // Higher than, in MB
-int warn_hdd = 75; // Higher than, in GB
-int warn_gpu = 75; // Higher than, in Celcius
-int warn_procs = 75; // Higher than, in #
+int warn_cpu = 75; //Percentagem Utilizacao CPU
+int warn_rpm = 75; //Percentagem Memoria RAM
+int warn_ram = 75; //Temperatura CPU
+int warn_hdd = 75; //Percentagem Utilizacao GPU
+int warn_gpu = 75; //Percentagem Memoria GPU
+int warn_procs = 75;   //Temperatura GPU
 
 // Place to store the last 21 readings
-int32_t cpu[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int32_t fan[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int32_t ram[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int32_t hdd[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int32_t gpu[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int32_t procs[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int32_t cpu[21] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int32_t fan[21] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int32_t ram[21] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int32_t hdd[21] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int32_t gpu[21] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int32_t procs[21] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 // Other variables
 int margin = 40;
 int screenwidth = 480;
 int screenheight = 320;
 // Initial LED brightness
-int ledBrightness = 230;
+int ledBrightness = 80;
 
 boolean graphshowing = false;
 boolean homescreen = true;
@@ -86,22 +87,22 @@ void setup() {
   Serial.println("Normal Serial begun.");
 
   // Begin our filesystem
-  if(FILESYSTEM.begin()){
+  if (FILESYSTEM.begin()) {
     Serial.println("SPIFFS begun.");
-  }else{
+  } else {
     Serial.println("SPIFFS failed!");
   }
 
-  #ifdef ENABLE_CAP_TOUCH
+#ifdef ENABLE_CAP_TOUCH
   //Begin the touchscreen
-  if(ts.begin(40, CUSTOM_TOUCH_SDA, CUSTOM_TOUCH_SCL)){
+  if (ts.begin(40, CUSTOM_TOUCH_SDA, CUSTOM_TOUCH_SCL)) {
     Serial.println("Touchscreen begun.");
-  }else{
+  } else {
     Serial.println("Touchscreen failed!");
   }
-  #endif
+#endif
 
-// Setup PWM channel and attach pin bl_pin
+  // Setup PWM channel and attach pin bl_pin
   ledcSetup(0, 5000, 8);
 #ifdef TFT_BL
   ledcAttachPin(TFT_BL, 0);
@@ -114,15 +115,15 @@ void setup() {
   // Initialise the TFT stuff
   tft.init();
   tft.setRotation(1);
-    
+
   tft.fillScreen(TFT_BLACK);
   tft.setFreeFont(&FreeSansBold12pt7b);
-  tft.setTextColor(TFT_SKYBLUE);
+  tft.setTextColor(TFT_WHITE);
   tft.setTextSize(1);
 
-  #ifdef ENABLE_RES_TOUCH
+#ifdef ENABLE_RES_TOUCH
   touch_calibrate();
-  #endif
+#endif
 
 
   // Draw Background
@@ -137,7 +138,7 @@ void setup() {
   tft.drawCentreString("n/a", 75, 280, 1);
   tft.drawCentreString("n/a", 244, 280, 1);
   tft.drawCentreString("n/a", 403, 280, 1);
-  
+
   Serial.println("Setup done.");
 
 }
@@ -151,7 +152,7 @@ void loop() {
 
   // Make sure we don't use last loop's touch
   pressed = false;
-  
+
 
   // Check for incoming Serial Data
   if (BTSerial.available()) {
@@ -174,22 +175,22 @@ void loop() {
 
     Serial.println("BTSerial scanned!");
   }
-  
+
 #ifdef ENABLE_CAP_TOUCH
 
   if (ts.touched())
   {
-  
+
     // Retrieve a point
     TS_Point p = ts.getPoint();
-  
+
     // Flip things around so it matches our screen rotation
     p.x = map(p.x, 0, 320, 320, 0);
     t_y = p.x;
     t_x = p.y;
-  
+
     pressed = true;
-    
+
   }
 
 #endif
@@ -210,316 +211,359 @@ void loop() {
 
 
   // Process Touches
-  if(pressed){
+  if (pressed) {
 
-  if(graphshowing){
+    if (graphshowing) {
 
-    drawBmp("/bg.bmp", 0, 0);
-    updateHomeScreen();
-    graphshowing = false;
-    
-  }else{
+      drawBmp("/bg.bmp", 0, 0);
+      updateHomeScreen();
+      graphshowing = false;
 
-      if(t_y < screenheight/2){
-    
-      Serial.print("Upper ");
-    
-        if(t_x < screenwidth/3){
-    
+    } else {
+
+      if (t_y < screenheight / 2) {
+
+        Serial.print("Upper ");
+
+        if (t_x < screenwidth / 3) {
+
           Serial.println("Left");
           drawGraph(0, sizeof(cpu) / sizeof(cpu[0]), 0, ymax_cpu, cpu, "Percentagem Utilizacao CPU", false);
           graphshowing = true;
           currentgraph = 1;
-          
-        }else if(t_x < (screenwidth/3)*2){
-    
+
+        } else if (t_x < (screenwidth / 3) * 2) {
+
           Serial.println("Middle");
           drawGraph(0, sizeof(fan) / sizeof(fan[0]), 0, ymax_fan, fan, "Percentagem Memoria RAM", false);
           graphshowing = true;
           currentgraph = 2;
 
-        }else{
-    
+        } else {
+
           Serial.println("Right");
           drawGraph(0, sizeof(ram) / sizeof(ram[0]), 0, ymax_ram, ram, "Temperatura CPU", false);
           graphshowing = true;
           currentgraph = 3;
-          
+
         }
-        
+
       }
-    
+
       else
       {
-    
+
         Serial.print("Lower ");
-    
-        if(t_x < screenwidth/3){
-    
+
+        if (t_x < screenwidth / 3) {
+
           Serial.println("Left");
           drawGraph(0, sizeof(hdd) / sizeof(hdd[0]), 0, ymax_hdd, hdd, "Percentagem Utilizacao GPU", false);
           graphshowing = true;
           currentgraph = 4;
-          
-        }else if(t_x < (screenwidth/3)*2){
-    
+
+        } else if (t_x < (screenwidth / 3) * 2) {
+
           Serial.println("Middle");
-           drawGraph(0, sizeof(gpu) / sizeof(gpu[0]), 0, ymax_gpu, gpu, "Memoria GPU", false);
-           graphshowing = true;
+          drawGraph(0, sizeof(gpu) / sizeof(gpu[0]), 0, ymax_gpu, gpu, "Percentagem Memoria GPU", false);
+          graphshowing = true;
           currentgraph = 5;
-          
-        }else{
-    
+
+        } else {
+
           Serial.println("Right");
 
           drawGraph(0, sizeof(procs) / sizeof(procs[0]), 0, ymax_procs, procs, "Temperatura GPU", false);
           graphshowing = true;
           currentgraph = 6;
-          
+
         }
-    
+
       }
-    
+
       pressed = false;
     }
-}
+  }
 
-// Redraw graphs if needed
+  // Redraw graphs if needed
 
-if(graphshowing && previousmillis+redrawtime <= millis()){
+  if (graphshowing && previousmillis + redrawtime <= millis()) {
+    delay(400);
 
-  previousmillis = millis();
+    previousmillis = millis();
 
-  if(currentgraph == 1){
-
-    drawGraph(0, sizeof(cpu) / sizeof(cpu[0]), 0, ymax_cpu, cpu, "Percentagem Utilizacao CPU", true);
+    if (currentgraph == 1) {
     
-  }else if(currentgraph == 2){
+      drawGraph(0, sizeof(cpu) / sizeof(cpu[0]), 0, ymax_cpu, cpu, "Percentagem Utilizacao CPU", true);
 
-    drawGraph(0, sizeof(fan) / sizeof(fan[0]), 0, ymax_fan, fan, "Percentagem Memoria RAM", true);
-    
-  }else if(currentgraph == 3){
+    } else if (currentgraph == 2) {
 
-    drawGraph(0, sizeof(ram) / sizeof(ram[0]), 0, ymax_ram, ram, "Temperatura CPU", true);
-   
-  }else if(currentgraph == 4){
+      drawGraph(0, sizeof(fan) / sizeof(fan[0]), 0, ymax_fan, fan, "Percentagem Memoria RAM", true);
+
+    } else if (currentgraph == 3) {
+
+      drawGraph(0, sizeof(ram) / sizeof(ram[0]), 0, ymax_ram, ram, "Temperatura CPU", true);
+
+    } else if (currentgraph == 4) {
 
       drawGraph(0, sizeof(hdd) / sizeof(hdd[0]), 0, ymax_hdd, hdd, "Percentagem Utilizacao GPU", true);
-      
-    
-  }else if(currentgraph == 5){
 
-    drawGraph(0, sizeof(gpu) / sizeof(gpu[0]), 0, ymax_gpu, gpu, "Memoria GPU", true);
-    
-    
-  }else if(currentgraph == 6){
 
-    drawGraph(0, sizeof(procs) / sizeof(procs[0]), 0, ymax_procs, procs, "Temperatura GPU", true);
-      
+    } else if (currentgraph == 5) {
+
+      drawGraph(0, sizeof(gpu) / sizeof(gpu[0]), 0, ymax_gpu, gpu, "Memoria GPU", true);
+
+
+    } else if (currentgraph == 6) {
+
+      drawGraph(0, sizeof(procs) / sizeof(procs[0]), 0, ymax_procs, procs, "Temperatura GPU", true);
+
+    }
+
   }
-  
-}
 
 
-else if (previousmillis+redrawtime <= millis()){
+  else if (previousmillis + redrawtime <= millis()) {
 
     previousmillis = millis();
     updateHomeScreen();
 
-}
+  }
 
 }
 
 // Function to shift all values in an array to the left and add a value
-void addToArray(int32_t addvalue, int32_t *arr){
+void addToArray(int32_t addvalue, int32_t *arr) {
 
-  for(int i=0; i<20; i++){
+  for (int i = 0; i < 20; i++) {
 
-    arr[i] = arr[i+1];
-    
+    arr[i] = arr[i + 1];
+
   }
 
   arr[20] = addvalue;
-  
+
 }
 
 // Draw the homescreen
 
-void updateHomeScreen(){
+void updateHomeScreen() {
 
   tft.setFreeFont(&FreeSansBold12pt7b);
-  tft.setTextColor(TFT_SKYBLUE);
+  tft.setTextColor(TFT_WHITE);
   tft.setTextSize(1);
+
+  // Make some nice strings for us to print
+  String temp_data = String(cpu[20]) + " %";
+  String rpm_data = String(fan[20]) + " %";
+  String ram_data = String(ram[20]) + " .C";
+
+  String hdd_data = String(hdd[20]) + " %";
+  String gpu_data = String(gpu[20]) + " %";
+  String procs_data = String(procs[20]) + " .C";
+
+  // Clear values by draw a black rectangle
+  tft.fillRect(40, 130, 440, 30, TFT_BLACK);
+  tft.fillRect(350, 130, 440, 30, TFT_BLACK);
+  tft.fillRect(25, 280, 440, 30, TFT_BLACK);
   
-    // Make some nice strings for us to print
-    String temp_data = String(cpu[20]) + " %";
-    String rpm_data = String(fan[20]) + " %";
-    String ram_data = String(ram[20]) + " .C";
-    
-    String hdd_data = String(hdd[20]) + " %";
-    String gpu_data = String(gpu[20]) + " %";
-    String procs_data = String(procs[20]) + " .C";
+
+  if (cpu[20] > warn_cpu) {
+    tft.setTextColor(TFT_RED);
+    tft.drawCentreString(temp_data, 75, 135, 1);
+  } else {
+    if(cpu[20] > 0){
+      tft.setTextColor(TFT_GREEN);
+      tft.drawCentreString(temp_data, 75, 135, 1);
+    } else {
+      tft.setTextColor(TFT_WHITE);
+      tft.drawCentreString(temp_data, 75, 135, 1);
+    }
+  }
+
+
+
+  if (fan[20] > warn_rpm) {
+    tft.setTextColor(TFT_RED);
+    tft.drawCentreString(rpm_data, 244, 135, 1);
+  } else {
+    if(fan[20] > 0){
+      tft.setTextColor(TFT_GREEN);
+      tft.drawCentreString(rpm_data, 244, 135, 1);
+    } else {
+      tft.setTextColor(TFT_WHITE);
+      tft.drawCentreString(rpm_data, 244, 135, 1);
+    }
+  }
+
+
+
+  if (ram[20] > warn_ram) {
+    tft.setTextColor(TFT_RED);
+    tft.drawCentreString(ram_data, 403, 135, 1);;
+  } else {
+    if(ram[20] > 0){
+      tft.setTextColor(TFT_GREEN);
+      tft.drawCentreString(ram_data, 403, 135, 1);
+    } else {
+      tft.setTextColor(TFT_WHITE);
+      tft.drawCentreString(ram_data, 403, 135, 1);
+    }
+  }
+
+
+
+  if (hdd[20] > warn_hdd) {
+    tft.setTextColor(TFT_RED);
+    tft.drawCentreString(hdd_data, 75, 280, 1);
+  } else {
+    if(hdd[20] > 0){
+      tft.setTextColor(TFT_GREEN);
+      tft.drawCentreString(hdd_data, 75, 280, 1);
+    } else {
+      tft.setTextColor(TFT_WHITE);
+      tft.drawCentreString(hdd_data, 75, 280, 1);
+    }
+  }
+
+
+
+  if (gpu[20] > warn_gpu) {
+    tft.setTextColor(TFT_RED);
+    tft.drawCentreString(gpu_data, 244, 280, 1);
+  } else {
+    if(gpu[20] > 0){
+      tft.setTextColor(TFT_GREEN);
+      tft.drawCentreString(gpu_data, 244, 280, 1);
+    } else {
+      tft.setTextColor(TFT_WHITE);
+      tft.drawCentreString(gpu_data, 244, 280, 1);
+    }
+  }
   
-      // Clear values by draw a black rectangle
-     tft.fillRect(40,130,440,30,TFT_BLACK);
-     tft.fillRect(350,130,440,30,TFT_BLACK);
-     tft.fillRect(25,280,440,30,TFT_BLACK);
 
 
+  if (procs[20] > warn_procs) {
+    tft.setTextColor(TFT_RED);
+    tft.drawCentreString(procs_data, 403, 280, 1);
+  } else {
+    if(procs[20] > 0){
+      tft.setTextColor(TFT_GREEN);
+      tft.drawCentreString(gpu_data, 403, 280, 1);
+    } else {
+      tft.setTextColor(TFT_WHITE);
+      tft.drawCentreString(gpu_data, 403, 280, 1);
+    }
+  }
 
-    if(cpu[20] > warn_cpu){
-      tft.setTextColor(TFT_RED);
-      tft.drawCentreString(temp_data, 75, 135, 1);     
-    }
-    else
-    {
-      tft.setTextColor(TFT_SKYBLUE);
-      tft.drawCentreString(temp_data, 75, 135, 1);    
-    }
-
-    if(fan[20] > warn_rpm){
-      tft.setTextColor(TFT_RED);
-      tft.drawCentreString(rpm_data, 244, 135, 1);     
-    }
-    else
-    {
-      tft.setTextColor(TFT_SKYBLUE);
-      tft.drawCentreString(rpm_data, 244, 135, 1);    
-    }
-
-    if(ram[20] > warn_ram){
-      tft.setTextColor(TFT_RED);
-      tft.drawCentreString(ram_data, 403, 135, 1);;     
-    }
-    else
-    {
-      tft.setTextColor(TFT_SKYBLUE);
-      tft.drawCentreString(ram_data, 403, 135, 1);    
-    }
-
-    if(hdd[20] > warn_hdd){
-      tft.setTextColor(TFT_RED);
-      tft.drawCentreString(hdd_data, 75, 280, 1);    
-    }
-    else
-    {
-      tft.setTextColor(TFT_SKYBLUE);
-      tft.drawCentreString(hdd_data, 75, 280, 1);    
-    }
-
-    if(gpu[20] > warn_gpu){
-      tft.setTextColor(TFT_RED);
-      tft.drawCentreString(gpu_data, 244, 280, 1);     
-    }
-    else
-    {
-      tft.setTextColor(TFT_SKYBLUE);
-      tft.drawCentreString(gpu_data, 244, 280, 1);    
-    }
-
-    if(procs[20] > warn_procs){
-      tft.setTextColor(TFT_RED);
-      tft.drawCentreString(procs_data, 403, 280, 1);     
-    }
-    else
-    {
-      tft.setTextColor(TFT_SKYBLUE);
-      tft.drawCentreString(procs_data, 403, 280, 1);    
-    }
-  
 }
 
 // Function to draw a graph
-void drawGraph(int32_t xmin, int32_t xmax, int32_t ymin, int32_t ymax, int32_t *arr, String title, bool redraw){
+void drawGraph(int32_t xmin, int32_t xmax, int32_t ymin, int32_t ymax, int32_t *arr, String title, bool redraw) {
 
   tft.setTextColor(TFT_WHITE);
   tft.setTextSize(1);
-  tft.setTextFont(1); 
+  tft.setTextFont(1);
 
   int32_t arrlen = xmax;
 
-  if(redraw){
+  if (redraw) {
 
-    tft.fillRect(0+margin+1, 0+margin-1, screenwidth+5-(2*margin),screenheight-(2*margin)-1, TFT_BLACK);
-    tft.drawLine(0+margin, 0+margin, 0+margin,screenheight-margin, TFT_SKYBLUE);
-    tft.drawLine(0+margin, screenheight-margin, screenwidth-margin, screenheight-margin, TFT_SKYBLUE);
-    
+    tft.fillRect(0 + margin + 1, 0 + margin - 1, screenwidth + 5 - (2 * margin), screenheight - (2 * margin) - 1, TFT_BLACK);
+    tft.drawLine(0 + margin, 0 + margin, 0 + margin, screenheight - margin, TFT_WHITE);
+    tft.drawLine(0 + margin, screenheight - margin, screenwidth - margin, screenheight - margin, TFT_WHITE);
+
   }
 
-  if(!redraw){ // if reDraw, do not draw the x/y axis again
+  if (!redraw) { // if reDraw, do not draw the x/y axis again
 
-  // If this is the first draw, black the screen first
-  tft.fillScreen(TFT_BLACK);
-    
-  // Draw graph title
-  tft.setTextDatum(ML_DATUM);
-  tft.drawString(title, margin-10, margin-20, 1);
+    // If this is the first draw, black the screen first
+    tft.fillScreen(TFT_BLACK);
 
-  // Draw empty graph
-  tft.drawLine(0+margin, 0+margin, 0+margin,screenheight-margin, TFT_SKYBLUE);
-  tft.drawLine(0+margin, screenheight-margin, screenwidth-margin, screenheight-margin, TFT_SKYBLUE);
+    // Draw graph title
+    tft.setTextDatum(ML_DATUM);
+    tft.drawString(title, margin - 10, margin - 20, 1);
 
-  tft.setTextDatum(MR_DATUM);
-  tft.drawString("0", margin-5, (screenheight-margin)+10, 1);
+    // Draw empty graph
+    tft.drawLine(0 + margin, 0 + margin, 0 + margin, screenheight - margin, TFT_WHITE);
+    tft.drawLine(0 + margin, screenheight - margin, screenwidth - margin, screenheight - margin, TFT_WHITE);
+
+    tft.setTextDatum(MR_DATUM);
+    tft.drawString("0", margin - 5, (screenheight - margin), 1);
+    tft.drawString("20", margin + 1, (screenheight - margin) + 10, 1);
   }
 
   // Draw the Y-axis
   int32_t yrange = ymax - ymin;
-  int32_t ysteps = (screenheight-2*margin)/5;
+  int32_t ysteps = (screenheight - 2 * margin) / 5;
 
-  if(!redraw){ // if reDraw, do not draw the x/y axis again
-    
-    for(int i = 1; i < 5; i++){
+  if (!redraw) { // if reDraw, do not draw the x/y axis again
+
+    for (int i = 1; i < 5; i++) {
       tft.setTextDatum(MR_DATUM);
-      tft.drawNumber(0+((yrange/5)*i), margin-5, (screenheight-margin)-ysteps*i, 1); 
+      tft.drawNumber(0 + ((yrange / 5)*i), margin - 5, (screenheight - margin) - ysteps * i, 1);
     }
-  
 
-    tft.drawNumber(ymax, margin-5, (screenheight-margin)-ysteps*5, 1);
+
+    tft.drawNumber(ymax, margin - 5, (screenheight - margin) - ysteps * 5, 1);
   }
 
   // Draw the X-axis
   int32_t xrange = xmax - xmin;
-  int32_t xsteps = (screenwidth-2*margin)/(arrlen-1);
+  int32_t xsteps = (screenwidth - 2 * margin) / (arrlen - 1);
 
-  if(!redraw){ // if reDraw, do not draw the x/y axis again
-    for(int i = 1; i < arrlen-1; i++){
+  if (!redraw) { // if reDraw, do not draw the x/y axis again
+    for (int i = 1; i < arrlen - 1; i++) {
       tft.setTextDatum(MC_DATUM);
-      tft.drawNumber(i, (0+margin)+xsteps*i, (screenheight-margin)+10, 1); 
-    }
-  
-    tft.drawNumber(xmax-1, (0+margin)+xsteps*(arrlen-1), (screenheight-margin)+10,  1);
-  
+      tft.drawNumber((arrlen - 1) - i, (0 + margin) + xsteps * i, (screenheight - margin) + 10, 1);
     }
 
-  for(int i = 0; i < arrlen; i++){
+    tft.drawNumber(0, (0 + margin) + xsteps * (arrlen - 1), (screenheight - margin) + 10,  1);
+
+  }
+
+  for (int i = 0; i < arrlen; i++) {
 
     Serial.printf("%i, ", arr[i]);
-    
+
   }
 
   Serial.println();
-  
-  for(int i = 0; i < arrlen-1; i++){
 
-    int32_t point = map(arr[i], ymax, ymin, 0+margin, screenheight-margin);
-    int32_t nextpoint = map(arr[i+1], ymax, ymin, 0+margin, screenheight-margin);
-    
+  for (int i = 0; i < arrlen - 1; i++) {
+
+    int32_t point = map(arr[i], ymax, ymin, 0 + margin, screenheight - margin);
+    int32_t nextpoint = map(arr[i + 1], ymax, ymin, 0 + margin, screenheight - margin);
+
     //tft.fillCircle((0+margin)+xsteps*i, point, 1, TFT_WHITE);
 
-    if(nextpoint < screenheight-(margin) && nextpoint > -1 && point < screenheight-(margin)){
+    if (nextpoint < screenheight - (margin) && nextpoint > -1 && point < screenheight - (margin)) {
 
       Serial.printf("%i, %i \n", point, nextpoint);
 
-      tft.drawLine((2+margin)+(xsteps*i), point, (2+margin)+xsteps*(i+1), nextpoint, TFT_WHITE);
-      
+      if (cpu[20] > warn_cpu && currentgraph == 1) {
+        tft.drawLine((2 + margin) + (xsteps * i), point, (2 + margin) + xsteps * (i + 1), nextpoint, TFT_RED);
+      }else if (fan[20] > warn_rpm && currentgraph == 2) {
+        tft.drawLine((2 + margin) + (xsteps * i), point, (2 + margin) + xsteps * (i + 1), nextpoint, TFT_RED);
+      }else if (ram[20] > warn_ram && currentgraph == 3) {
+        tft.drawLine((2 + margin) + (xsteps * i), point, (2 + margin) + xsteps * (i + 1), nextpoint, TFT_RED);
+      }else if ( hdd[20] > warn_hdd && currentgraph == 4) {
+        tft.drawLine((2 + margin) + (xsteps * i), point, (2 + margin) + xsteps * (i + 1), nextpoint, TFT_RED);
+      }else if (gpu[20] > warn_gpu && currentgraph == 5) {
+        tft.drawLine((2 + margin) + (xsteps * i), point, (2 + margin) + xsteps * (i + 1), nextpoint, TFT_RED);
+      }else if (procs[20] > warn_procs && currentgraph == 6) {
+        tft.drawLine((2 + margin) + (xsteps * i), point, (2 + margin) + xsteps * (i + 1), nextpoint, TFT_RED);
+      }else {
+        tft.drawLine((2 + margin) + (xsteps * i), point, (2 + margin) + xsteps * (i + 1), nextpoint, TFT_GREEN);
+      }
+
     }
   }
 
-  tft.setTextColor(TFT_SKYBLUE);
+  tft.setTextColor(TFT_WHITE);
   tft.setTextSize(3);
   tft.setFreeFont(&FreeSansBold12pt7b);
-  
+
 }
 
 
@@ -620,13 +664,13 @@ void touch_calibrate()
   // Check if calibration file exists and size is correct
   if (FILESYSTEM.exists(CALIBRATION_FILE))
   {
-      fs::File f = FILESYSTEM.open(CALIBRATION_FILE, "r");
-      if (f)
-      {
-        if (f.readBytes((char *)calData, 14) == 14)
-          calDataOK = 1;
-        f.close();
-      }
+    fs::File f = FILESYSTEM.open(CALIBRATION_FILE, "r");
+    if (f)
+    {
+      if (f.readBytes((char *)calData, 14) == 14)
+        calDataOK = 1;
+      f.close();
+    }
   }
 
   if (calDataOK)
