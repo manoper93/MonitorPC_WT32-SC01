@@ -449,10 +449,10 @@ void updateHomeScreen() {
   } else {
     if(procs[20] > 0){
       tft.setTextColor(TFT_GREEN);
-      tft.drawCentreString(gpu_data, 403, 280, 1);
+      tft.drawCentreString(procs_data, 403, 280, 1);
     } else {
       tft.setTextColor(TFT_WHITE);
-      tft.drawCentreString(gpu_data, 403, 280, 1);
+      tft.drawCentreString(procs_data, 403, 280, 1);
     }
   }
 
