@@ -1,13 +1,14 @@
->>>>> Last Update - 01/12/2023:
-Arduino code without graphshowing and this code have: touch left top turn on screen, touch right top turn off screen, when not turned off screen with touch or reset the screen turn auto on if data it not null, better performance data show and timers.
-For all arduino code background multioption with better quality.
+Last Update - 01/12/2023:
+	Arduino code without graphshowing and this code have: touch left top turn on screen, touch right top turn off screen, when not turned off screen with touch or reset the screen turn auto on if data it not null, better performance data show and timers.
+	For all arduino code background multioption with better quality.
 
 
-> 14/08/2023:
-https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/a413b3cf-fe48-459b-a8f6-1c8df162f676
+14/08/2023:
+	https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/4122fc66-a44e-4120-bc2f-43a21ca1c50c
 
-> First Update - 05/03/2023:
-![20230221_195041aa](https://user-images.githubusercontent.com/70864023/222975950-0b791d5f-fe44-46d5-a8be-7de803ef2561.jpg)
+
+First Update - 05/03/2023:
+	![20230221_195041aa](https://user-images.githubusercontent.com/70864023/222975950-0b791d5f-fe44-46d5-a8be-7de803ef2561.jpg)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
