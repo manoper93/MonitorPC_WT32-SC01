@@ -4,7 +4,10 @@ https://discord.gg/2Dawbuq2
 --------------------------
 
 Last Update - 01/12/2023:
-	Arduino code without graphshowing and this code have: touch left top turn on screen, touch right top turn off screen, when not turned off screen with touch or reset the screen turn auto on if data it not null, better performance data show and timers.
+	Arduino code without graphshowing and this code have:
+	ATTENTION, STARTS WITH SCREEN OFF WAITING FOR DATA!!!
+	Touch left top turn on screen, touch right top turn off screen, when not turned off screen with touch or reset the screen turn auto on if data it not null, better performance data show and timers. 
+ 
 	For all arduino code background multioption with better quality.
 
 --------------------------
