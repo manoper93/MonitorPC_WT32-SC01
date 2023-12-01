@@ -51,6 +51,7 @@ FOLLOW THE STEPS TO INSTALL THE PC MONITOR:
 
 UNTIL HERE ARDUINO IS DONE
 
+--------------------------
 
 10. In the PYTHON FILE (monitor.py) edit your COM port with a text editor, or other parameters that you want to modify to send to the device (to execute: CMD, in the respective place, and command " python monitor.py " ;
 
