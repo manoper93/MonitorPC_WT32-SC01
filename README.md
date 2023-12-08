@@ -1,5 +1,9 @@
 Hello everyone, this discord was created for project purposes, comments for improvement and new ideas will be welcome.
 https://discord.gg/2Dawbuq2
+--------------------------
+
+Last Update - 08/12/2023:
+	add deep sleep 1min
 
 --------------------------
 
