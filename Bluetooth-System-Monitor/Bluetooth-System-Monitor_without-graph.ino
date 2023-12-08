@@ -2,6 +2,7 @@
 #include <TFT_eSPI.h>
 #include <SPIFFS.h>
 #include <FS.h>
+#include <esp_sleep.h>
 
 #define ENABLE_CAP_TOUCH
 //#define ENABLE_RES_TOUCH
@@ -30,6 +31,9 @@ int t = 1;
 int g = 0;
 int c = 0;
 int onoff = 0;
+
+RTC_DATA_ATTR int bootCount = 0;
+RTC_DATA_ATTR int slp = 0;
 
 int ymax_cpu = 100; //Percentagem Utilizacao CPU
 int ymax_fan = 100; //Percentagem Memoria RAM
@@ -87,36 +91,15 @@ void setup() {
   }
 #endif
 
-  // Setup PWM channel and attach pin bl_pin
-  ledcSetup(0, 5000, 8);
-#ifdef TFT_BL
-  ledcAttachPin(TFT_BL, 0);
-#else
-  ledcAttachPin(backlightPin, 0);
-#endif // defined(TFT_BL)
-  ledcWrite(0, ledBrightness); // Start @ initial Brightness
+Serial.println("--------------------------------------- SETUP");
+Serial.println("Boot state: " + String(bootCount));
+Serial.println("sleep state: " + String(slp));
+Serial.println("---------------------------------------");
 
-
-  // Initialise the TFT stuff
-  tft.init();
-  tft.setRotation(1);
-
-  tft.fillScreen(TFT_BLACK);
-  tft.setFreeFont(&FreeSansBold12pt7b);
-  tft.setTextColor(TFT_WHITE);
-  tft.setTextSize(1);
-
-#ifdef ENABLE_RES_TOUCH
-  touch_calibrate();
-#endif
-
-
-  // Draw Background
-  drawBmp("/bg.bmp", 0, 0);
-  Serial.println("Background drawn.");
-
-  Serial.println("Setup done.");
-  ledcAttachPin(TFT_BL, 1);
+if(bootCount < 1){
+  lcd();
+}
+bootCount=1;
 }
 
 //--------------------------------------------------------------------------------------- VOID LOOP
@@ -169,27 +152,43 @@ void loop() {
     gpu[0] = gpu_s.toInt();
     procs[0] = procs_s.toInt();
 
+    if(slp == 1){
+      lcd();
+      slp=0;
+      Serial.println("---------------------------------------IF BT OK");
+      Serial.println("Boot state: " + String(bootCount));
+      Serial.println("sleep state: " + String(slp));
+      Serial.println("---------------------------------------");
+    }
+    
     if (ram_s.length() > 0) {
         if (ram[0] != 0 && c==0) {
             ledcAttachPin(TFT_BL, 0);
             Serial.println("BT dados recebidos (mostra cada vez esta mensagem)");
-
             updateHomeScreen();
         }
+        g=0;
     }
-    g=0;
     
   } else {
-    if(g==6000){
+    if(g==8000){
       ledcAttachPin(TFT_BL, 1);
-      Serial.print("BT sem dados recebidos (so mostra uma vez) - ms =");
+      Serial.print("BT sem dados recebidos (so mostra uma vez) - ms = ");
       Serial.println(g);
       c=0;
+      slp=1;
     }
-    if(g <= 6000){
+    if(slp == 1 && g==8001){
+      Serial.println("--------------------------------------- IF BT NOT OK");
+      Serial.println("Boot state: " + String(bootCount));
+      Serial.println("sleep state: " + String(slp));
+      Serial.println("---------------------------------------");
+      esp_sleep_enable_timer_wakeup(60e6); // 1 minute in microseconds
+      esp_deep_sleep_start();
+    }
+    if(g <= 8000){
       g++;
     }
-    
   }
 
   // Process Touches
@@ -492,3 +491,35 @@ void touch_calibrate()
   }
 }
 #endif
+
+void lcd(){
+  // Setup PWM channel and attach pin bl_pin
+  ledcSetup(0, 5000, 8);
+#ifdef TFT_BL
+  ledcAttachPin(TFT_BL, 0);
+#else
+  ledcAttachPin(backlightPin, 0);
+#endif // defined(TFT_BL)
+  ledcWrite(0, ledBrightness); // Start @ initial Brightness
+
+  // Initialise the TFT stuff
+  tft.init();
+  tft.setRotation(1);
+
+  tft.fillScreen(TFT_BLACK);
+  tft.setFreeFont(&FreeSansBold12pt7b);
+  tft.setTextColor(TFT_WHITE);
+  tft.setTextSize(1);
+  Serial.println("Boot STATE = 1 OU INICIADO SE SLP = 0");
+
+  #ifdef ENABLE_RES_TOUCH
+  touch_calibrate();
+#endif
+
+  // Draw Background
+  drawBmp("/bg.bmp", 0, 0);
+  Serial.println("Background drawn.");
+
+  Serial.println("Setup done.");
+  ledcAttachPin(TFT_BL, 1);
+}
