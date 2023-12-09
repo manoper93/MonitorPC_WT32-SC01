@@ -1,13 +1,19 @@
 Hello everyone, this discord was created for project purposes, comments for improvement and new ideas will be welcome.
 https://discord.gg/2Dawbuq2
+
 --------------------------
 
-Last Update - 08/12/2023:
+Last Update - 09/12/2023:
+	add ledBrightness inc and dec level, add sleep for 1 day 
+ 
+--------------------------
+
+08/12/2023:
 	add deep sleep 1min
 
 --------------------------
 
-Last Update - 01/12/2023:
+01/12/2023:
 	Arduino code without graphshowing and this code have:
 	ATTENTION, STARTS WITH SCREEN OFF WAITING FOR DATA!!!
 	Touch left top turn on screen, touch right top turn off screen, when not turned off screen with touch or reset the screen turn auto on if data it not null, better performance data show and timers. 
