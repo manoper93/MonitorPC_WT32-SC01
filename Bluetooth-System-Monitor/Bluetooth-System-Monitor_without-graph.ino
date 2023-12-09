@@ -3,6 +3,7 @@
 #include <SPIFFS.h>
 #include <FS.h>
 #include <esp_sleep.h>
+#include <EEPROM.h>
 
 #define ENABLE_CAP_TOUCH
 //#define ENABLE_RES_TOUCH
@@ -35,6 +36,7 @@ int onoff = 0;
 RTC_DATA_ATTR int bootCount = 0;
 RTC_DATA_ATTR int slp = 0;
 RTC_DATA_ATTR int ledBrightness = 30;
+int address = 0;
 
 int ymax_cpu = 100; //Percentagem Utilizacao CPU
 int ymax_fan = 100; //Percentagem Memoria RAM
@@ -69,6 +71,16 @@ int screenheight = 320;
 void setup() {
   // Begin BT Serial
   BTSerial.begin("SystemMonitorPC"); // You can change this name, but on MacOs make sure to match your port to this name in the script
+  EEPROM.begin(512);
+
+  EEPROM.get(address, ledBrightness);
+
+  // If the data is not valid (e.g., first run), initialize yourVariable to a default value
+  if (ledBrightness < 0 || ledBrightness > 254) {
+    ledBrightness = 30;
+    EEPROM.put(address, ledBrightness);
+    EEPROM.commit();
+  }
   
   // Begin regular Serial for debugging
   Serial.begin(115200);
@@ -243,6 +255,8 @@ void loop() {
           }
           Serial.println("inc ledBrightness state: " + String(ledBrightness));
           lcd();
+          EEPROM.put(address, ledBrightness);
+          EEPROM.commit();
           
         } else if (t_x < (screenwidth / 3) * 2) {
           Serial.println("Meio");
@@ -250,6 +264,8 @@ void loop() {
           ledBrightness = 30;
           Serial.println("default ledBrightness state: " + String(ledBrightness));
           lcd();
+          EEPROM.put(address, ledBrightness);
+          EEPROM.commit();
 
         } else {
           Serial.println("Direita");
@@ -261,6 +277,8 @@ void loop() {
           }
           Serial.println("dec ledBrightness state: " + String(ledBrightness));
           lcd();
+          EEPROM.put(address, ledBrightness);
+          EEPROM.commit();
           
         }
 
@@ -523,6 +541,7 @@ void touch_calibrate()
   }
 }
 #endif
+
 
 void lcd(){
   // Setup PWM channel and attach pin bl_pin
