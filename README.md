@@ -4,12 +4,12 @@ https://discord.gg/2Dawbuq2
 --------------------------
 
 Last Update - 09/12/2023:
-	add ledBrightness inc and dec level, add sleep for 1 day 
+	add ledBrightness inc and dec level, add sleep for 1 day touch option (not auto)
  
 --------------------------
 
 08/12/2023:
-	add deep sleep 1min
+	add deep sleep 1min when bt not receive data (wakes every 1min after for check data)
 
 --------------------------
 
