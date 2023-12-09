@@ -34,6 +34,7 @@ int onoff = 0;
 
 RTC_DATA_ATTR int bootCount = 0;
 RTC_DATA_ATTR int slp = 0;
+RTC_DATA_ATTR int ledBrightness = 30;
 
 int ymax_cpu = 100; //Percentagem Utilizacao CPU
 int ymax_fan = 100; //Percentagem Memoria RAM
@@ -62,14 +63,13 @@ int16_t procs[1];
 int margin = 40;
 int screenwidth = 480;
 int screenheight = 320;
-int ledBrightness = 20;
 
 //--------------------------------------------------------------------------------------- VOID SETUP
 
 void setup() {
   // Begin BT Serial
   BTSerial.begin("SystemMonitorPC"); // You can change this name, but on MacOs make sure to match your port to this name in the script
-
+  
   // Begin regular Serial for debugging
   Serial.begin(115200);
   Serial.println("!!!!! Manoper - SystemMonitorPC edition !!!!!");
@@ -94,6 +94,7 @@ void setup() {
 Serial.println("--------------------------------------- SETUP");
 Serial.println("Boot state: " + String(bootCount));
 Serial.println("sleep state: " + String(slp));
+Serial.println("ledBrightness state: " + String(ledBrightness));
 Serial.println("---------------------------------------");
 
 if(bootCount < 1){
@@ -158,6 +159,7 @@ void loop() {
       Serial.println("---------------------------------------IF BT OK");
       Serial.println("Boot state: " + String(bootCount));
       Serial.println("sleep state: " + String(slp));
+      Serial.println("ledBrightness state: " + String(ledBrightness));
       Serial.println("---------------------------------------");
     }
     
@@ -182,6 +184,7 @@ void loop() {
       Serial.println("--------------------------------------- IF BT NOT OK");
       Serial.println("Boot state: " + String(bootCount));
       Serial.println("sleep state: " + String(slp));
+      Serial.println("ledBrightness state: " + String(ledBrightness));
       Serial.println("---------------------------------------");
       esp_sleep_enable_timer_wakeup(60e6); // 1 minute in microseconds
       esp_deep_sleep_start();
@@ -207,8 +210,17 @@ void loop() {
          
 
         } else if (t_x < (screenwidth / 3) * 2) {
+          
           Serial.println("Meio");
-          // adicionar....
+          Serial.println("--------------------------------------- 1 day off");
+          Serial.println("Boot state: " + String(bootCount));
+          Serial.println("sleep state: " + String(slp));
+          Serial.println("ledBrightness state: " + String(ledBrightness));
+          Serial.println("---------------------------------------");
+          // Configurar para acordar após um dia (em microssegundos)
+          esp_sleep_enable_timer_wakeup(24 * 60 * 60 * 1e6);
+          esp_deep_sleep_start();
+          
         } else {
           Serial.println("Direita");
           t--;
@@ -223,13 +235,33 @@ void loop() {
         Serial.print("INFERIOR - ");
         if (t_x < screenwidth / 3) {
           Serial.println("Esquerda");
-          // adicionar....
+
+          if(ledBrightness < 235){
+            ledBrightness += 20;
+          } else {
+            ledBrightness = 254;
+          }
+          Serial.println("inc ledBrightness state: " + String(ledBrightness));
+          lcd();
+          
         } else if (t_x < (screenwidth / 3) * 2) {
           Serial.println("Meio");
-          // adicionar....
+
+          ledBrightness = 30;
+          Serial.println("default ledBrightness state: " + String(ledBrightness));
+          lcd();
+
         } else {
           Serial.println("Direita");
-          // adicionar....
+          
+           if(ledBrightness > 20){
+            ledBrightness -= 20;
+          } else {
+            ledBrightness = 0;
+          }
+          Serial.println("dec ledBrightness state: " + String(ledBrightness));
+          lcd();
+          
         }
 
       }
