@@ -4,7 +4,7 @@ https://discord.gg/2Dawbuq2
 --------------------------
 
 Last Update - 09/12/2023:
-	add ledBrightness inc and dec level, add sleep for 1 day touch option (not auto)
+	add ledBrightness touch for inc or dec level (save on EEPROM), add sleep for 1 day touch option (not auto)
  
 --------------------------
 
