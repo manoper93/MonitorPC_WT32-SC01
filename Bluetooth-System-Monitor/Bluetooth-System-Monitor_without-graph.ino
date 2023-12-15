@@ -31,9 +31,11 @@ boolean homescreen = true;
 int t = 1;
 int g = 0;
 int c = 0;
+int s = 0;
+int sw = 0;
 int onoff = 0;
+int background = 0;
 
-RTC_DATA_ATTR int bootCount = 0;
 RTC_DATA_ATTR int slp = 0;
 RTC_DATA_ATTR int ledBrightness = 30;
 int address = 0;
@@ -104,21 +106,108 @@ void setup() {
 #endif
 
 Serial.println("--------------------------------------- SETUP");
-Serial.println("Boot state: " + String(bootCount));
+Serial.println("T: " + String(t));
+Serial.println("G: " + String(g));
+Serial.println("C: " + String(c));
+Serial.println("S: " + String(s));
+Serial.println("SW: " + String(sw));
 Serial.println("sleep state: " + String(slp));
 Serial.println("ledBrightness state: " + String(ledBrightness));
 Serial.println("---------------------------------------");
-
-if(bootCount < 1){
-  lcd();
-}
-bootCount=1;
 }
 
 //--------------------------------------------------------------------------------------- VOID LOOP
 
 void loop() {
+  
+  if (BTSerial.available()) {
+    bt();
+    touch();
+  } else {
+    no_bt();
+  }
+  
+}
 
+//--------------------------------------------------------------------------------------- VOID BT
+
+void bt(){
+   // Esperamos dados no formato: "33,428,8343,16000,68,371"
+    String cpu_s = BTSerial.readStringUntil(',');
+    String fan_s = BTSerial.readStringUntil(',');
+    String ram_s = BTSerial.readStringUntil(',');
+    String hdd_s = BTSerial.readStringUntil(',');
+    String gpu_s = BTSerial.readStringUntil(',');
+    String procs_s = BTSerial.readStringUntil('/');
+
+    cpu[0] = cpu_s.toInt();
+    fan[0] = fan_s.toInt();
+    ram[0] = ram_s.toInt();
+    hdd[0] = hdd_s.toInt();
+    gpu[0] = gpu_s.toInt();
+    procs[0] = procs_s.toInt();
+
+    if(slp == 1 || s == 0){
+      background = 0;
+      lcd();
+      slp=0;
+      s=1;
+      Serial.println("---------------------------------------IF BT DATA RECEIVED AFTER SLEEP, TURN ON SCREEN");
+      Serial.println("T: " + String(t));
+      Serial.println("G: " + String(g));
+      Serial.println("C: " + String(c));
+      Serial.println("S: " + String(s));
+      Serial.println("SW: " + String(sw));
+      Serial.println("sleep state: " + String(slp));
+      Serial.println("ledBrightness state: " + String(ledBrightness));
+      Serial.println("---------------------------------------");
+    }
+    
+    if (ram_s.length() > 0) {
+        ledcAttachPin(TFT_BL, 0);
+        if (ram[0] != 0 && c == 0 && background == 0) { 
+            Serial.println("-- BT DATA RECEIVED - G: " + String(g));
+            updateHomeScreen();
+        }
+    g=0;
+    }
+}
+
+//--------------------------------------------------------------------------------------- VOID NO BT
+
+void no_bt(){
+  if(g == 400000 || g == 500000){
+     ledcAttachPin(TFT_BL, 1);
+     Serial.println("NO BT DATA RECEIVED - G: " + String(g));
+     c=0;
+     sw=0;
+     if(g == 500000){
+        slp=1;
+     }
+   }
+    
+   if(slp == 1 && g==500001){
+     Serial.println("--------------------------------------- IF NO BT SLEEP 1min");
+     Serial.println("T: " + String(t));
+     Serial.println("G: " + String(g));
+     Serial.println("C: " + String(c));
+     Serial.println("S: " + String(s));
+     Serial.println("SW: " + String(sw));
+     Serial.println("sleep state: " + String(slp));
+     Serial.println("ledBrightness state: " + String(ledBrightness));
+     Serial.println("---------------------------------------");
+     esp_sleep_enable_timer_wakeup(60e6); // 1 minute in microseconds
+     esp_deep_sleep_start();
+   }
+    
+   if(g <= 500000){
+     g++;
+   }
+}
+
+//--------------------------------------------------------------------------------------- VOID TOUCH
+
+void touch(){
   int t_y, t_x;
   uint16_t x, y;
   bool pressed = false;
@@ -135,150 +224,103 @@ void loop() {
     t_y = p.x;
     t_x = p.y;
     pressed = true;
-
   }
 #endif
 
 #ifdef ENABLE_RES_TOUCH
-  if (tft.getTouch(&x, &y)) {
-
+  if (tft.getTouch(&x, &y)){
     t_x = x;
     t_y = y;
     pressed = true;
-
   }
 #endif
+
   
-  if (BTSerial.available()) {
-    // Esperamos dados no formato: "33,428,8343,16000,68,371"
-    String cpu_s = BTSerial.readStringUntil(',');
-    String fan_s = BTSerial.readStringUntil(',');
-    String ram_s = BTSerial.readStringUntil(',');
-    String hdd_s = BTSerial.readStringUntil(',');
-    String gpu_s = BTSerial.readStringUntil(',');
-    String procs_s = BTSerial.readStringUntil('/');
-
-    cpu[0] = cpu_s.toInt();
-    fan[0] = fan_s.toInt();
-    ram[0] = ram_s.toInt();
-    hdd[0] = hdd_s.toInt();
-    gpu[0] = gpu_s.toInt();
-    procs[0] = procs_s.toInt();
-
-    if(slp == 1){
+  if (pressed && slp == 0) {
+    sw++;
+    if(sw == 2){
+      background = 1;
       lcd();
-      slp=0;
-      Serial.println("---------------------------------------IF BT OK");
-      Serial.println("Boot state: " + String(bootCount));
-      Serial.println("sleep state: " + String(slp));
-      Serial.println("ledBrightness state: " + String(ledBrightness));
-      Serial.println("---------------------------------------");
     }
-    
-    if (ram_s.length() > 0) {
-        if (ram[0] != 0 && c==0) {
-            ledcAttachPin(TFT_BL, 0);
-            Serial.println("BT dados recebidos (mostra cada vez esta mensagem)");
-            updateHomeScreen();
-        }
-        g=0;
-    }
-    
-  } else {
-    if(g==8000){
-      ledcAttachPin(TFT_BL, 1);
-      Serial.print("BT sem dados recebidos (so mostra uma vez) - ms = ");
-      Serial.println(g);
-      c=0;
-      slp=1;
-    }
-    if(slp == 1 && g==8001){
-      Serial.println("--------------------------------------- IF BT NOT OK");
-      Serial.println("Boot state: " + String(bootCount));
-      Serial.println("sleep state: " + String(slp));
-      Serial.println("ledBrightness state: " + String(ledBrightness));
-      Serial.println("---------------------------------------");
-      esp_sleep_enable_timer_wakeup(60e6); // 1 minute in microseconds
-      esp_deep_sleep_start();
-    }
-    if(g <= 8000){
-      g++;
-    }
-  }
-
-  // Process Touches
-  if (pressed) {
+    if(sw == 3){
+      sw=0;
       
       if (t_y < screenheight / 2) {
         Serial.print("SUPERIOR - ");
+        
         if (t_x < screenwidth / 3) {
-          Serial.println("Esquerda");
-          t++;
-          if(t>1){
-            c=0;
-            t=1;
-            ledcAttachPin(TFT_BL, 0);
-          }
-         
+          Serial.println("Esquerda"); //------------------------------------------- SUPERIOR ESQUERDO
+          
+            t++;
+            if(t>1){
+              c=0;
+              t=1;
+              ledcAttachPin(TFT_BL, 0);
+            }
+            background = 0;
+            lcd();
 
         } else if (t_x < (screenwidth / 3) * 2) {
-          
-          Serial.println("Meio");
-          Serial.println("--------------------------------------- 1 day off");
-          Serial.println("Boot state: " + String(bootCount));
-          Serial.println("sleep state: " + String(slp));
-          Serial.println("ledBrightness state: " + String(ledBrightness));
-          Serial.println("---------------------------------------");
-          // Configurar para acordar após um dia (em microssegundos)
-          esp_sleep_enable_timer_wakeup(24 * 60 * 60 * 1e6);
-          esp_deep_sleep_start();
+          Serial.println("Meio"); //------------------------------------------- SUPERIOR MEIO
+      
+            Serial.println("--------------------------------------- 1 day off");
+            Serial.println("T: " + String(t));
+            Serial.println("G: " + String(g));
+            Serial.println("C: " + String(c));
+            Serial.println("S: " + String(s));
+            Serial.println("SW: " + String(sw));
+            Serial.println("sleep state: " + String(slp));
+            Serial.println("ledBrightness state: " + String(ledBrightness));
+            Serial.println("---------------------------------------");
+            // Configurar para acordar após um dia (em microssegundos)
+            esp_sleep_enable_timer_wakeup(24 * 60 * 60 * 1e6);
+            esp_deep_sleep_start();
           
         } else {
-          Serial.println("Direita");
-          t--;
-          if(t<1){
-            c=1;
-            t=1;
-            ledcAttachPin(TFT_BL, 1);
-          }
+          Serial.println("Direita"); //------------------------------------------- SUPERIOR DIREITO
+          
+            t--;
+            if(t<1){
+              c=1;
+              t=1;
+              ledcAttachPin(TFT_BL, 1);
+            }
         }
 
       }else{
-        Serial.print("INFERIOR - ");
+       Serial.print("INFERIOR - ");
+        
         if (t_x < screenwidth / 3) {
-          Serial.println("Esquerda");
-
-          if(ledBrightness < 235){
-            ledBrightness += 20;
-          } else {
-            ledBrightness = 254;
-          }
-          Serial.println("inc ledBrightness state: " + String(ledBrightness));
-          lcd();
-          EEPROM.put(address, ledBrightness);
-          EEPROM.commit();
+          Serial.println("Esquerda"); //------------------------------------------- INFERIOR ESQUERDO
+  
+            if(ledBrightness < 235){
+              ledBrightness += 20;
+            } else {
+              ledBrightness = 254;
+            }
+            Serial.println("inc ledBrightness state: " + String(ledBrightness));
+            EEPROM.put(address, ledBrightness);
+            EEPROM.commit();
           
         } else if (t_x < (screenwidth / 3) * 2) {
-          Serial.println("Meio");
+          Serial.println("Meio"); //------------------------------------------- INFERIOR MEIO
 
-          ledBrightness = 30;
-          Serial.println("default ledBrightness state: " + String(ledBrightness));
-          lcd();
-          EEPROM.put(address, ledBrightness);
-          EEPROM.commit();
+            ledBrightness = 30;
+            Serial.println("default ledBrightness state: " + String(ledBrightness));
+            EEPROM.put(address, ledBrightness);
+            EEPROM.commit();
 
         } else {
-          Serial.println("Direita");
-          
-           if(ledBrightness > 20){
-            ledBrightness -= 20;
-          } else {
-            ledBrightness = 0;
-          }
-          Serial.println("dec ledBrightness state: " + String(ledBrightness));
-          lcd();
-          EEPROM.put(address, ledBrightness);
-          EEPROM.commit();
+          Serial.println("Direita"); //------------------------------------------- INFERIOR DIREITO
+            
+             if(ledBrightness > 20){
+              ledBrightness -= 20;
+            } else {
+              ledBrightness = 0;
+            }
+            Serial.println("dec ledBrightness state: " + String(ledBrightness));
+            EEPROM.put(address, ledBrightness);
+            EEPROM.commit();
           
         }
 
@@ -286,10 +328,10 @@ void loop() {
       delay(100);
       pressed = false;
     }
-
+  }
 }
 
-//--------------------------------------------------------------------------------------- VOID
+//--------------------------------------------------------------------------------------- VOID UPDATE VALUE
 
 void updateHomeScreen() {
   
@@ -305,7 +347,7 @@ void updateHomeScreen() {
   tft.fillRect(350, 130, 440, 30, TFT_BLACK);
   tft.fillRect(25, 280, 440, 30, TFT_BLACK);
 
-  if (cpu[0] > warn_cpu) {
+  if (cpu[0] > warn_cpu) { //------------------------------------------- CPU USADE
     tft.setTextColor(TFT_RED);
     tft.drawCentreString(temp_data, 75, 135, 1);
   } else {
@@ -318,9 +360,7 @@ void updateHomeScreen() {
     }
   }
 
-
-
-  if (fan[0] > warn_rpm) {
+  if (fan[0] > warn_rpm) { //------------------------------------------- RAM
     tft.setTextColor(TFT_RED);
     tft.drawCentreString(rpm_data, 244, 135, 1);
   } else {
@@ -333,9 +373,7 @@ void updateHomeScreen() {
     }
   }
 
-
-
-  if (ram[0] > warn_ram) {
+  if (ram[0] > warn_ram) { //------------------------------------------- CPU TEMP
     tft.setTextColor(TFT_RED);
     tft.drawCentreString(ram_data, 403, 135, 1);;
   } else {
@@ -348,9 +386,7 @@ void updateHomeScreen() {
     }
   }
 
-
-
-  if (hdd[0] > warn_hdd) {
+  if (hdd[0] > warn_hdd) {  //------------------------------------------- GPU USADE
     tft.setTextColor(TFT_RED);
     tft.drawCentreString(hdd_data, 75, 280, 1);
   } else {
@@ -363,9 +399,7 @@ void updateHomeScreen() {
     }
   }
 
-
-
-  if (gpu[0] > warn_gpu) {
+  if (gpu[0] > warn_gpu) { //------------------------------------------- GPU VRAM
     tft.setTextColor(TFT_RED);
     tft.drawCentreString(gpu_data, 244, 280, 1);
   } else {
@@ -377,10 +411,8 @@ void updateHomeScreen() {
       tft.drawCentreString(gpu_data, 244, 280, 1);
     }
   }
-  
 
-
-  if (procs[0] > warn_procs) {
+  if (procs[0] > warn_procs) { //------------------------------------------- GPU TEMP
     tft.setTextColor(TFT_RED);
     tft.drawCentreString(procs_data, 403, 280, 1);
   } else {
@@ -395,10 +427,9 @@ void updateHomeScreen() {
 
 }
 
-//--------------------------------------------------------------------------------------- VOID
+//--------------------------------------------------------------------------------------- VOID IMAGE
 
-void drawBmp(const char *filename, int16_t x, int16_t y)
-{
+void drawBmp(const char *filename, int16_t x, int16_t y){
 
   if ((x >= tft.width()) || (y >= tft.height()))
     return;
@@ -407,9 +438,7 @@ void drawBmp(const char *filename, int16_t x, int16_t y)
 
   bmpFS = FILESYSTEM.open(filename, "r");
 
-  if (!bmpFS)
-  {
-
+  if (!bmpFS){
     Serial.print("File not found:");
     Serial.println(filename);
     return;
@@ -419,8 +448,7 @@ void drawBmp(const char *filename, int16_t x, int16_t y)
   uint16_t w, h, row;
   uint8_t r, g, b;
 
-  if (read16(bmpFS) == 0x4D42)
-  {
+  if (read16(bmpFS) == 0x4D42){
     read32(bmpFS);
     read32(bmpFS);
     seekOffset = read32(bmpFS);
@@ -428,8 +456,7 @@ void drawBmp(const char *filename, int16_t x, int16_t y)
     w = read32(bmpFS);
     h = read32(bmpFS);
 
-    if ((read16(bmpFS) == 1) && (read16(bmpFS) == 24) && (read32(bmpFS) == 0))
-    {
+    if ((read16(bmpFS) == 1) && (read16(bmpFS) == 24) && (read32(bmpFS) == 0)){
       y += h - 1;
 
       bool oldSwapBytes = tft.getSwapBytes();
@@ -439,15 +466,13 @@ void drawBmp(const char *filename, int16_t x, int16_t y)
       uint16_t padding = (4 - ((w * 3) & 3)) & 3;
       uint8_t lineBuffer[w * 3 + padding];
 
-      for (row = 0; row < h; row++)
-      {
+      for (row = 0; row < h; row++){
 
         bmpFS.read(lineBuffer, sizeof(lineBuffer));
         uint8_t *bptr = lineBuffer;
         uint16_t *tptr = (uint16_t *)lineBuffer;
         // Convert 24 to 16 bit colours
-        for (uint16_t col = 0; col < w; col++)
-        {
+        for (uint16_t col = 0; col < w; col++){
           b = *bptr++;
           g = *bptr++;
           r = *bptr++;
@@ -459,23 +484,25 @@ void drawBmp(const char *filename, int16_t x, int16_t y)
         tft.pushImage(x, y--, w, 1, (uint16_t *)lineBuffer);
       }
       tft.setSwapBytes(oldSwapBytes);
-    }
-    else
+    } else {
       Serial.println("[WARNING]: BMP format not recognized.");
+    }
   }
   bmpFS.close();
 }
 
-uint16_t read16(fs::File &f)
-{
+//----------------------------------------------------- UNSIGNED INT IMAGE
+
+uint16_t read16(fs::File &f){
   uint16_t result;
   ((uint8_t *)&result)[0] = f.read(); // LSB
   ((uint8_t *)&result)[1] = f.read(); // MSB
   return result;
 }
 
-uint32_t read32(fs::File &f)
-{
+//----------------------------------------------------- UNSIGNED LONG INT IMAGE
+
+uint32_t read32(fs::File &f){
   uint32_t result;
   ((uint8_t *)&result)[0] = f.read(); // LSB
   ((uint8_t *)&result)[1] = f.read();
@@ -485,7 +512,7 @@ uint32_t read32(fs::File &f)
 }
 
 
-//--------------------------------------------------------------------------------------- VOID
+//--------------------------------------------------------------------------------------- VOID TOUCH CALIBRATION
 
 #ifdef ENABLE_RES_TOUCH
 void touch_calibrate()
@@ -542,6 +569,7 @@ void touch_calibrate()
 }
 #endif
 
+//--------------------------------------------------------------------------------------- VOID LCD
 
 void lcd(){
   // Setup PWM channel and attach pin bl_pin
@@ -561,15 +589,18 @@ void lcd(){
   tft.setFreeFont(&FreeSansBold12pt7b);
   tft.setTextColor(TFT_WHITE);
   tft.setTextSize(1);
-  Serial.println("Boot STATE = 1 OU INICIADO SE SLP = 0");
-
+  
   #ifdef ENABLE_RES_TOUCH
   touch_calibrate();
 #endif
 
-  // Draw Background
-  drawBmp("/bg.bmp", 0, 0);
-  Serial.println("Background drawn.");
+  if(background == 0){
+    drawBmp("/bg.bmp", 0, 0);
+    Serial.println("Background drawn - HOME");
+  } else {
+    drawBmp("/bg2.bmp", 0, 0);
+    Serial.println("Background drawn - MENU");
+  }
 
   Serial.println("Setup done.");
   ledcAttachPin(TFT_BL, 1);
