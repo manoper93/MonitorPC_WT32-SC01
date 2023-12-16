@@ -1,13 +1,18 @@
 Hello everyone, this discord was created for project purposes, comments for improvement and new ideas will be welcome.
 https://discord.gg/2Dawbuq2
 
---------------------------
+----------------------------------------------------
+
 Last Update - 16/12/2023:
 	simplify code, fix wait_time, fix blink screen, add second background for menu (finished)
- 	
-![20231216_003209](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/713d146a-f1a9-4d98-b35f-efde4f2fd74c)
+ 
+![20231216_165225](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/29cafab6-9d5f-4d99-8d30-100734acd588)
 
-![20231216_003155](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/6ce5badf-0108-41e6-922f-9fc5840af514)
+![20231216_165232](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/e9124018-6456-4f78-adbd-62f16f2c43de)
+
+In the end of the video it enters in sleep mode 1 day!
+https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5def5f05-91fd-4214-964a-ca262b48f526
+
 --------------------------
 
 15/12/2023:
