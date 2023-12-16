@@ -3,7 +3,7 @@ https://discord.gg/2Dawbuq2
 
 --------------------------
 Last Update - 16/12/2023:
-	simplify code, add second background for menu (finished)
+	simplify code, fix wait_time, fix blink screen, add second background for menu (finished)
  	
 ![20231216_003209](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/713d146a-f1a9-4d98-b35f-efde4f2fd74c)
 
