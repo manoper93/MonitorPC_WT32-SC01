@@ -163,7 +163,7 @@ void bt(){
             ledcAttachPin(TFT_BL, 0);
         }
         if (ram[0] != 0 && background == 0) { 
-            Serial.println("-- BT DATA RECEIVED - wait_time MAX 500000: " + String(wait_time));
+            Serial.println("-- BT DATA RECEIVED - wait_time MAX 30000ms: " + String(wait_time));
             updateHomeScreen();
         }
     wait_time = 0;
@@ -173,16 +173,16 @@ void bt(){
 //--------------------------------------------------------------------------------------- VOID NO BT
 
 void no_bt(){
-  if(wait_time == 400000 || wait_time == 500000){
+  if(wait_time == 30000 || wait_time == 40000){
      ledcAttachPin(TFT_BL, 1);
-     Serial.println("NO BT DATA RECEIVED - wait_time MAX 500000: " + String(wait_time));
+     Serial.println("NO BT DATA RECEIVED - wait_time MAX 40000ms: " + String(wait_time));
      touch_times = 0;
-     if(wait_time == 500000){
+     if(wait_time == 40000){
         sleep_state = 1;
      }
    }
     
-   if(sleep_state == 1 && wait_time == 500001){
+   if(sleep_state == 1 && wait_time == 40001){
      Serial.println("--------------------------------------- IF NO BT SLEEP 1min");
      Serial.println("wait_time: " + String(wait_time));
      Serial.println("touch_times: " + String(touch_times));
@@ -193,7 +193,8 @@ void no_bt(){
      esp_deep_sleep_start();
    }
     
-   if(wait_time <= 500000){
+   if(wait_time <= 40000){
+     delay(1);
      wait_time++;
    }
 }
