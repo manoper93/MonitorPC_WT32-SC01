@@ -28,40 +28,39 @@ BluetoothSerial BTSerial;
 
 boolean homescreen = true;
 
-int t = 1;
-int g = 0;
-int c = 0;
-int s = 0;
-int sw = 0;
-int onoff = 0;
+int wait_time = 0;
+
+int touch_times = 0;
+int screen_start = 0;
+int screen_off = 0;
 int background = 0;
 
-RTC_DATA_ATTR int slp = 0;
+RTC_DATA_ATTR int sleep_state = 0;
 RTC_DATA_ATTR int ledBrightness = 30;
 int address = 0;
 
-int ymax_cpu = 100; //Percentagem Utilizacao CPU
-int ymax_fan = 100; //Percentagem Memoria RAM
-int ymax_ram = 120;  //Temperatura CPU
-int ymax_hdd = 100;  //Percentagem Utilizacao GPU
-int ymax_gpu = 100;  //Percentagem Memoria GPU
-int ymax_procs = 120;  //Temperatura GPU
+int ymax_cpu = 100; //Perc CPU
+int ymax_fan = 100; //Perc RAM
+int ymax_ram = 120;  //Temp CPU
+int ymax_hdd = 100;  //Perc GPU
+int ymax_gpu = 100;  //Perc GPU
+int ymax_procs = 120;  //Temp GPU
 
 
-int warn_cpu = 75; //Percentagem Utilizacao CPU
-int warn_rpm = 75; //Percentagem Memoria RAM
-int warn_ram = 75; //Temperatura CPU
-int warn_hdd = 75; //Percentagem Utilizacao GPU
-int warn_gpu = 75; //Percentagem Memoria GPU
-int warn_procs = 75;   //Temperatura GPU
+int warn_cpu = 75; //Perc CPU
+int warn_rpm = 75; //Perc RAM
+int warn_ram = 75; //Temp CPU
+int warn_hdd = 75; //Perc GPU
+int warn_gpu = 75; //Perc GPU
+int warn_procs = 75;   //Temp GPU
 
 
-int16_t cpu[1];
-int16_t fan[1];
-int16_t ram[1];
-int16_t hdd[1];
-int16_t gpu[1];
-int16_t procs[1];
+int cpu[1];
+int fan[1];
+int ram[1];
+int hdd[1];
+int gpu[1];
+int procs[1];
 
 
 int margin = 40;
@@ -86,7 +85,9 @@ void setup() {
   
   // Begin regular Serial for debugging
   Serial.begin(115200);
-  Serial.println("!!!!! Manoper - SystemMonitorPC edition !!!!!");
+  Serial.println("---------------------------------------------");
+  Serial.println("|     Manoper - SystemMonitorPC edition     |");
+  Serial.println("---------------------------------------------");
   Serial.println("Normal Serial begun.");
 
   // Begin our filesystem
@@ -106,12 +107,9 @@ void setup() {
 #endif
 
 Serial.println("--------------------------------------- SETUP");
-Serial.println("T: " + String(t));
-Serial.println("G: " + String(g));
-Serial.println("C: " + String(c));
-Serial.println("S: " + String(s));
-Serial.println("SW: " + String(sw));
-Serial.println("sleep state: " + String(slp));
+Serial.println("wait_time: " + String(wait_time));
+Serial.println("touch_times: " + String(touch_times));
+Serial.println("sleep state: " + String(sleep_state));
 Serial.println("ledBrightness state: " + String(ledBrightness));
 Serial.println("---------------------------------------");
 }
@@ -147,61 +145,56 @@ void bt(){
     gpu[0] = gpu_s.toInt();
     procs[0] = procs_s.toInt();
 
-    if(slp == 1 || s == 0){
+    if(sleep_state == 1 || screen_start == 0){
+      screen_start = 1;
       background = 0;
       lcd();
-      slp=0;
-      s=1;
+      sleep_state = 0;
       Serial.println("---------------------------------------IF BT DATA RECEIVED AFTER SLEEP, TURN ON SCREEN");
-      Serial.println("T: " + String(t));
-      Serial.println("G: " + String(g));
-      Serial.println("C: " + String(c));
-      Serial.println("S: " + String(s));
-      Serial.println("SW: " + String(sw));
-      Serial.println("sleep state: " + String(slp));
+      Serial.println("wait_time: " + String(wait_time));
+      Serial.println("touch_times: " + String(touch_times));
+      Serial.println("sleep state: " + String(sleep_state));
       Serial.println("ledBrightness state: " + String(ledBrightness));
       Serial.println("---------------------------------------");
     }
     
     if (ram_s.length() > 0) {
-        ledcAttachPin(TFT_BL, 0);
-        if (ram[0] != 0 && c == 0 && background == 0) { 
-            Serial.println("-- BT DATA RECEIVED - G: " + String(g));
+        if(screen_off == 0){
+            ledcAttachPin(TFT_BL, 0);
+        }
+        if (ram[0] != 0 && background == 0) { 
+            Serial.println("-- BT DATA RECEIVED - wait_time MAX 500000: " + String(wait_time));
             updateHomeScreen();
         }
-    g=0;
+    wait_time = 0;
     }
 }
 
 //--------------------------------------------------------------------------------------- VOID NO BT
 
 void no_bt(){
-  if(g == 400000 || g == 500000){
+  if(wait_time == 400000 || wait_time == 500000){
      ledcAttachPin(TFT_BL, 1);
-     Serial.println("NO BT DATA RECEIVED - G: " + String(g));
-     c=0;
-     sw=0;
-     if(g == 500000){
-        slp=1;
+     Serial.println("NO BT DATA RECEIVED - wait_time MAX 500000: " + String(wait_time));
+     touch_times = 0;
+     if(wait_time == 500000){
+        sleep_state = 1;
      }
    }
     
-   if(slp == 1 && g==500001){
+   if(sleep_state == 1 && wait_time == 500001){
      Serial.println("--------------------------------------- IF NO BT SLEEP 1min");
-     Serial.println("T: " + String(t));
-     Serial.println("G: " + String(g));
-     Serial.println("C: " + String(c));
-     Serial.println("S: " + String(s));
-     Serial.println("SW: " + String(sw));
-     Serial.println("sleep state: " + String(slp));
+     Serial.println("wait_time: " + String(wait_time));
+     Serial.println("touch_times: " + String(touch_times));
+     Serial.println("sleep state: " + String(sleep_state));
      Serial.println("ledBrightness state: " + String(ledBrightness));
      Serial.println("---------------------------------------");
      esp_sleep_enable_timer_wakeup(60e6); // 1 minute in microseconds
      esp_deep_sleep_start();
    }
     
-   if(g <= 500000){
-     g++;
+   if(wait_time <= 500000){
+     wait_time++;
    }
 }
 
@@ -236,91 +229,89 @@ void touch(){
 #endif
 
   
-  if (pressed && slp == 0) {
-    sw++;
-    if(sw == 2){
-      background = 1;
-      lcd();
-    }
-    if(sw == 3){
-      sw=0;
+  if (pressed && sleep_state == 0) {
+    touch_times++;
+    if(touch_times == 1){
+      if(screen_off == 0){
+        ledcAttachPin(TFT_BL, 0);
+        background = 1;
+        lcd();
+      } else {
+        touch_times = 0;
+        screen_off = 0;
+        background = 0;
+        ledcAttachPin(TFT_BL, 0);
+        lcd();
+      }
+    }else if(touch_times == 2){
+      touch_times = 0;
       
       if (t_y < screenheight / 2) {
-        Serial.print("SUPERIOR - ");
+        Serial.print("TOP - ");
         
         if (t_x < screenwidth / 3) {
-          Serial.println("Esquerda"); //------------------------------------------- SUPERIOR ESQUERDO
+          Serial.println("LEFT"); //------------------------------------------- TOP LEFT
           
-            t++;
-            if(t>1){
-              c=0;
-              t=1;
-              ledcAttachPin(TFT_BL, 0);
-            }
             background = 0;
             lcd();
 
         } else if (t_x < (screenwidth / 3) * 2) {
-          Serial.println("Meio"); //------------------------------------------- SUPERIOR MEIO
+          Serial.println("MIDDLE"); //------------------------------------------- TOP MIDDLE
       
             Serial.println("--------------------------------------- 1 day off");
-            Serial.println("T: " + String(t));
-            Serial.println("G: " + String(g));
-            Serial.println("C: " + String(c));
-            Serial.println("S: " + String(s));
-            Serial.println("SW: " + String(sw));
-            Serial.println("sleep state: " + String(slp));
+            Serial.println("wait_time: " + String(wait_time));
+            Serial.println("touch_times: " + String(touch_times));
+            Serial.println("sleep state: " + String(sleep_state));
             Serial.println("ledBrightness state: " + String(ledBrightness));
             Serial.println("---------------------------------------");
-            // Configurar para acordar após um dia (em microssegundos)
+            
             esp_sleep_enable_timer_wakeup(24 * 60 * 60 * 1e6);
             esp_deep_sleep_start();
           
         } else {
-          Serial.println("Direita"); //------------------------------------------- SUPERIOR DIREITO
+          Serial.println("RIGHT"); //------------------------------------------- TOP RIGHT
           
-            t--;
-            if(t<1){
-              c=1;
-              t=1;
-              ledcAttachPin(TFT_BL, 1);
-            }
+            screen_off = 1;
+            ledcAttachPin(TFT_BL, 1);
         }
 
       }else{
-       Serial.print("INFERIOR - ");
+       Serial.print("BOTTOM - ");
         
         if (t_x < screenwidth / 3) {
-          Serial.println("Esquerda"); //------------------------------------------- INFERIOR ESQUERDO
+          Serial.println("LEFT"); //------------------------------------------- BOTTOM LEFT
   
-            if(ledBrightness < 235){
-              ledBrightness += 20;
+            if(ledBrightness < 225){
+              ledBrightness += 30;
             } else {
               ledBrightness = 254;
             }
             Serial.println("inc ledBrightness state: " + String(ledBrightness));
             EEPROM.put(address, ledBrightness);
             EEPROM.commit();
+            lcd();
           
         } else if (t_x < (screenwidth / 3) * 2) {
-          Serial.println("Meio"); //------------------------------------------- INFERIOR MEIO
+          Serial.println("MIDDLE"); //------------------------------------------- BOTTOM MIDDLE
 
             ledBrightness = 30;
             Serial.println("default ledBrightness state: " + String(ledBrightness));
             EEPROM.put(address, ledBrightness);
             EEPROM.commit();
+            lcd();
 
         } else {
-          Serial.println("Direita"); //------------------------------------------- INFERIOR DIREITO
+          Serial.println("RIGHT"); //------------------------------------------- BOTTOM RIGHT
             
-             if(ledBrightness > 20){
-              ledBrightness -= 20;
+             if(ledBrightness >= 60){
+              ledBrightness -= 30;
             } else {
               ledBrightness = 0;
             }
             Serial.println("dec ledBrightness state: " + String(ledBrightness));
             EEPROM.put(address, ledBrightness);
             EEPROM.commit();
+            lcd();
           
         }
 
