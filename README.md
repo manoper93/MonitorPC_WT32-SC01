@@ -2,8 +2,15 @@ Hello everyone, this discord was created for project purposes, comments for impr
 https://discord.gg/2Dawbuq2
 
 --------------------------
+Last Update - 16/12/2023:
+	simplify code, add second background for menu (finished)
+ 	
+![20231216_003209](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/713d146a-f1a9-4d98-b35f-efde4f2fd74c)
 
-Last Update - 15/12/2023:
+![20231216_003155](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/6ce5badf-0108-41e6-922f-9fc5840af514)
+--------------------------
+
+15/12/2023:
 	a lot of changes, add second background for menu (testing)
 
 --------------------------
