@@ -345,7 +345,7 @@ void lcd(){
   tft.setRotation(1);
 
   //tft.fillScreen(TFT_BLACK);
-  tft.setFreeFont(&FreeSansBold9pt7b);
+  tft.setFreeFont(&FreeSansBold12pt7b);
   //tft.setTextColor(TFT_WHITE);
   //tft.setTextSize(1);
   
