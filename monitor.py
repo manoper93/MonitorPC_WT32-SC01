@@ -2,9 +2,6 @@ import os
 import serial
 import time
 
-os.system('start_LibreHardwareMonitor')
-time.sleep(10)
-
 def sendData(cpuu, mempercused, cput, gpuperc, gpumem, gputemp):
     try:
         connection = serial.Serial('COM6') # Change this to match your COM port!
@@ -64,4 +61,4 @@ while True:
     gpu_mem=int((gpu_memUsed*100) / gpu_memTotal)
 
     sendData(cpuutil, mem_perc_used, cpu_temp, gpu_perc, gpu_mem, gpu_temp)
-    time.sleep(0.9)
+    time.sleep(0.5)
