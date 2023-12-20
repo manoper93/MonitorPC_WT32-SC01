@@ -4,7 +4,15 @@ https://discord.gg/2m7MY99G4a
 
 ----------------------------------------------------
 
-Last Update - 16/12/2023:
+Last Update - 20/12/2023:
+	Monitor.py:
+ 		extern file COM.txt to change PORT COM (order; COM RX, enter, COM TX);
+ 		more fast update data;
+  		trying to do connection rx and tx.
+ 
+----------------------------------------------------
+
+16/12/2023:
 	simplify code, fix wait_time, fix blink screen, add second background for menu (finished)
  
 ![20231216_165225](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/29cafab6-9d5f-4d99-8d30-100734acd588)
