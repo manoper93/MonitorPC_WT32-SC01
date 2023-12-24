@@ -6,6 +6,8 @@ import re
 from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+import time
+time.sleep(10)
 
 logging.basicConfig(level=logging.ERROR)
 
