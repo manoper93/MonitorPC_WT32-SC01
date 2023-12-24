@@ -35,7 +35,7 @@ int screen_start = 0;
 int screen_off = 0;
 int background = 0;
 
-RTC_DATA_ATTR int sleep_state = 0;
+RTC_DATA_ATTR int sleep_state = 3;
 RTC_DATA_ATTR int ledBrightness = 30;
 RTC_DATA_ATTR int dontsleep = 0;
 int address = 0;
