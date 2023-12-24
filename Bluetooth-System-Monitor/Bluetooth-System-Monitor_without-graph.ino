@@ -144,7 +144,7 @@ void blueCallback() {
 }
 
 void touchCallback() {
-  if(screen_off != 0){
+  if(sleep_state == 0){
      touch();
    }
   
@@ -176,6 +176,7 @@ void bt(){
       background = 0;
       lcd();
       sleep_state = 0;
+      touch_times = 0;
       Serial.println("---------------------------------------IF BT DATA RECEIVED AFTER SLEEP, TURN ON SCREEN");
       Serial.println("wait_time: " + String(wait_time));
       Serial.println("touch_times: " + String(touch_times));
@@ -204,12 +205,14 @@ void no_bt(){
      ledcAttachPin(TFT_BL, 1);
      Serial.println("NO BT DATA RECEIVED - wait_time MAX 40000ms: " + String(wait_time));
      touch_times = 0;
+    sleep_state = 1;
      if(wait_time == 60){
-        sleep_state = 1;
+        touch_times = 0;
+        sleep_state = 2;
      }
    }
     
-   if(sleep_state == 1 && wait_time == 61 && dontsleep == 0){
+   if(sleep_state == 2 && wait_time == 61 && dontsleep == 0){
      Serial.println("--------------------------------------- IF NO BT SLEEP 1min");
      Serial.println("wait_time: " + String(wait_time));
      Serial.println("touch_times: " + String(touch_times));
