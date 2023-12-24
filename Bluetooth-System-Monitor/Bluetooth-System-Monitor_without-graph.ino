@@ -125,7 +125,7 @@ Serial.println("ledBrightness state: " + String(ledBrightness));
 Serial.println("---------------------------------------");
 
   // Set up Touch timer to run every 500 milliseconds (0.5 seconds)
-  blueTimer.attach(0.00001, blueCallback);
+  blueTimer.attach(0.5, blueCallback);
   touchTimer.attach(0.00001, touchCallback);
 }
 
