@@ -93,7 +93,7 @@ FOLLOW THE STEPS TO INSTALL THE PC MONITOR:
 
 6. Open "Bluetooth System Monitor.ino " (this one dedicated to WT32-SC01) if you want the original one (https://github.com/DustinWatts/Bluetooth-System-Monitor) and edit for your device, like also the levels of WARNING (RED) and LIMITS of the data, further down you can change the symbols (line 354 to 361) and the graphics text menu (line 230 to 317);
 
-7. Install device on Arduino (https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/) and the selected device must be "esp32 Dev Module" without editing parameters;
+7. Install device on Arduino (https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/) and the selected device must be "esp32 Dev Module" without editing parameters, ONLY Partition Scheme - "NO OTA (2MB APP, 2MB SPIFFS)";
 
 8. Compile and submit;
 
