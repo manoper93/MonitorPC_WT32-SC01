@@ -40,26 +40,26 @@ RTC_DATA_ATTR int ledBrightness = 30;
 RTC_DATA_ATTR int dontsleep = 0;
 int address = 0;
 
-int ymax_cpu = 100; //Perc CPU
-int ymax_fan = 100; //Perc RAM
-int ymax_ram = 120;  //Temp CPU
-int ymax_hdd = 100;  //Perc GPU
-int ymax_gpu = 100;  //Perc GPU
-int ymax_procs = 120;  //Temp GPU
+int MAX_CPU = 100; //Perc CPU
+int MAX_RAM = 100; //Perc RAM
+int MAX_CPU_TEMP = 120;  //Temp CPU
+int MAX_GPU = 100;  //Perc GPU
+int MAX_VRAM = 100;  //Perc GPU
+int MAX_GPU_TEMP = 120;  //Temp GPU
 
-int warn_cpu = 75; //Perc CPU
-int warn_rpm = 75; //Perc RAM
-int warn_ram = 75; //Temp CPU
-int warn_hdd = 75; //Perc GPU
-int warn_gpu = 75; //Perc GPU
-int warn_procs = 75;   //Temp GPU
+int WARN_CPU = 75; //Perc CPU
+int WARN_RAM = 75; //Perc RAM
+int WARN_CPU_TEMP = 75; //Temp CPU
+int WARN_GPU = 75; //Perc GPU
+int WARN_VRAM = 75; //Perc GPU
+int WARN_GPU_TEMP = 75;   //Temp GPU
 
 int cpu[1];
-int fan[1];
 int ram[1];
-int hdd[1];
+int cput[1];
 int gpu[1];
-int procs[1];
+int vram[1];
+int gput[1];
 
 int margin = 40;
 int screenwidth = 480;
@@ -125,8 +125,8 @@ Serial.println("ledBrightness state: " + String(ledBrightness));
 Serial.println("---------------------------------------");
 
   // Set up Touch timer to run every 500 milliseconds (0.5 seconds)
-  blueTimer.attach(0.5, blueCallback);
-  touchTimer.attach(0.00001, touchCallback);
+  blueTimer.attach(0.4, blueCallback);
+  touchTimer.attach(0.001, touchCallback);
 }
 
 //--------------------------------------------------------------------------------------- VOID LOOP
@@ -148,7 +148,6 @@ void touchCallback() {
      touch();
    }
   
-  
   BTSerial.println(volume);
   BTSerial.write(volume);
   volume = 0;
@@ -158,18 +157,18 @@ void touchCallback() {
 
 void bt(){
     String cpu_s = BTSerial.readStringUntil(',');
-    String fan_s = BTSerial.readStringUntil(',');
     String ram_s = BTSerial.readStringUntil(',');
-    String hdd_s = BTSerial.readStringUntil(',');
+    String cput_s = BTSerial.readStringUntil(',');
     String gpu_s = BTSerial.readStringUntil(',');
-    String procs_s = BTSerial.readStringUntil('/');
+    String vram_s = BTSerial.readStringUntil(',');
+    String gput_s = BTSerial.readStringUntil('/');
 
-    cpu[0] = cpu_s.toInt();
-    fan[0] = fan_s.toInt();
-    ram[0] = ram_s.toInt();
-    hdd[0] = hdd_s.toInt();
-    gpu[0] = gpu_s.toInt();
-    procs[0] = procs_s.toInt();
+    if(cpu_s.toInt() <= MAX_CPU)       cpu[0] = cpu_s.toInt();
+    if(ram_s.toInt() <= MAX_RAM)       ram[0] = ram_s.toInt();
+    if(cput_s.toInt() <= MAX_CPU_TEMP) cput[0] = cput_s.toInt();
+    if(gpu_s.toInt() <= MAX_GPU)       gpu[0] = gpu_s.toInt();
+    if(vram_s.toInt() <= MAX_VRAM)     vram[0] = vram_s.toInt();
+    if(gput_s.toInt() <= MAX_CPU)      gput[0] = gput_s.toInt();
 
     if(sleep_state == 1 || screen_start == 0){
       screen_start = 1;
@@ -190,7 +189,7 @@ void bt(){
     }
     
     if (background == 0) { 
-      Serial.println("-- BT DATA RECEIVED - wait_time MAX 30000ms: " + String(wait_time));
+      Serial.println("-- BT DATA RECEIVED - wait_time MAX 60ms: " + String(wait_time));
       updateHomeScreen();
     }
     
@@ -203,9 +202,9 @@ void bt(){
 void no_bt(){
   if(wait_time == 30 || wait_time == 60){
      ledcAttachPin(TFT_BL, 1);
-     Serial.println("NO BT DATA RECEIVED - wait_time MAX 40000ms: " + String(wait_time));
+     Serial.println("NO BT DATA RECEIVED - wait_time MAX 60ms: " + String(wait_time));
      touch_times = 0;
-    sleep_state = 1;
+     sleep_state = 1;
      if(wait_time == 60){
         touch_times = 0;
         sleep_state = 2;
@@ -276,13 +275,14 @@ void touch(){
                 touch_times = 0;
                 background = 0;
                 wallpaper();
-                delay(0.5);
+                delay(0.1);
     
             } else if (t_x < (screenwidth / 3) * 2) {
               Serial.println("MIDDLE (menu1)"); //------------------------------------------- TOP MIDDLE
     
                 background = 2;
                 wallpaper();
+                delay(0.1);
                
             } else {
               Serial.println("RIGHT (menu1)"); //------------------------------------------- TOP RIGHT
@@ -290,7 +290,7 @@ void touch(){
                 screen_off = 1;
                 touch_times = 0;
                 ledcAttachPin(TFT_BL, 1);
-                delay(0.5);
+                delay(0.1);
             }
     
           }else{
@@ -308,7 +308,7 @@ void touch(){
                 EEPROM.put(address, ledBrightness);
                 EEPROM.commit();
                 ledcWrite(0, ledBrightness); // Start @ initial Brightness
-                delay(0.5);
+                delay(0.1);
               
             } else if (t_x < (screenwidth / 3) * 2) {
               Serial.println("MIDDLE (menu1)"); //------------------------------------------- BOTTOM MIDDLE
@@ -318,7 +318,7 @@ void touch(){
                 EEPROM.put(address, ledBrightness);
                 EEPROM.commit();
                 ledcWrite(0, ledBrightness); // Start @ initial Brightness
-                delay(0.5);
+                delay(0.1);
     
             } else {
               Serial.println("RIGHT (menu1)"); //------------------------------------------- BOTTOM RIGHT
@@ -332,7 +332,7 @@ void touch(){
                 EEPROM.put(address, ledBrightness);
                 EEPROM.commit();
                 ledcWrite(0, ledBrightness); // Start @ initial Brightness
-                delay(0.5);
+                delay(0.1);
               
             }
     
@@ -348,6 +348,7 @@ void touch(){
                 Serial.println("LEFT (menu2)"); //------------------------------------------- TOP LEFT
                 background = 1;
                 wallpaper();
+                delay(0.1);
                 
               } else if (t_x < (screenwidth / 3) * 2) {
                 Serial.println("MIDDLE (menu2)"); //------------------------------------------- TOP MIDDLE
@@ -445,95 +446,101 @@ void wallpaper(){
 
 void updateHomeScreen() {
   
-  String temp_data = String(cpu[0]) + " %";
-  String rpm_data = String(fan[0]) + " %";
-  String ram_data = String(ram[0]) + " .C";
+  String CPU_data = String(cpu[0]) + " %";
+  String RAM_data = String(ram[0]) + " %";
+  String CPUT_data = String(cput[0]) + " .C";
 
-  String hdd_data = String(hdd[0]) + " %";
-  String gpu_data = String(gpu[0]) + " %";
-  String procs_data = String(procs[0]) + " .C";
+  String GPU_data = String(gpu[0]) + " %";
+  String VRAM_data = String(vram[0]) + " %";
+  String GPUT_data = String(gput[0]) + " .C";
 
   tft.fillRect(40, 130, 440, 30, TFT_BLACK);
   tft.fillRect(350, 130, 440, 30, TFT_BLACK);
   tft.fillRect(25, 280, 440, 30, TFT_BLACK);
 
-  if (cpu[0] > warn_cpu) { //------------------------------------------- CPU USADE
-    tft.setTextColor(TFT_RED);
-    tft.drawCentreString(temp_data, 75, 135, 1);
-  } else {
-    if(cpu[0] > 0){
-      tft.setTextColor(TFT_GREEN);
-      tft.drawCentreString(temp_data, 75, 135, 1);
+//------------------------------------------- CPU USADE
+    if (cpu[0] > WARN_CPU) {
+      tft.setTextColor(TFT_RED);
+      tft.drawCentreString(CPU_data, 75, 135, 1);
     } else {
-      tft.setTextColor(TFT_WHITE);
-      tft.drawCentreString(temp_data, 75, 135, 1);
+      if(cpu[0] > 0){
+        tft.setTextColor(TFT_GREEN);
+        tft.drawCentreString(CPU_data, 75, 135, 1);
+      } else {
+        tft.setTextColor(TFT_WHITE);
+        tft.drawCentreString(CPU_data, 75, 135, 1);
+      }
     }
-  }
 
-  if (fan[0] > warn_rpm) { //------------------------------------------- RAM
-    tft.setTextColor(TFT_RED);
-    tft.drawCentreString(rpm_data, 244, 135, 1);
-  } else {
-    if(fan[0] > 0){
-      tft.setTextColor(TFT_GREEN);
-      tft.drawCentreString(rpm_data, 244, 135, 1);
+//------------------------------------------- RAM
+    if (ram[0] > WARN_RAM) {
+      tft.setTextColor(TFT_RED);
+      tft.drawCentreString(RAM_data, 244, 135, 1);
     } else {
-      tft.setTextColor(TFT_WHITE);
-      tft.drawCentreString(rpm_data, 244, 135, 1);
+      if(ram[0] > 0){
+        tft.setTextColor(TFT_GREEN);
+        tft.drawCentreString(RAM_data, 244, 135, 1);
+      } else {
+        tft.setTextColor(TFT_WHITE);
+        tft.drawCentreString(RAM_data, 244, 135, 1);
+      }
     }
-  }
 
-  if (ram[0] > warn_ram) { //------------------------------------------- CPU TEMP
-    tft.setTextColor(TFT_RED);
-    tft.drawCentreString(ram_data, 403, 135, 1);;
-  } else {
-    if(ram[0] > 0){
-      tft.setTextColor(TFT_GREEN);
-      tft.drawCentreString(ram_data, 403, 135, 1);
+//------------------------------------------- CPU TEMP
+    if (cput[0] > WARN_CPU_TEMP){
+      tft.setTextColor(TFT_RED);
+      tft.drawCentreString(CPUT_data, 403, 135, 1);;
     } else {
-      tft.setTextColor(TFT_WHITE);
-      tft.drawCentreString(ram_data, 403, 135, 1);
+      if(cput[0] > 0){
+        tft.setTextColor(TFT_GREEN);
+        tft.drawCentreString(CPUT_data, 403, 135, 1);
+      } else {
+        tft.setTextColor(TFT_WHITE);
+        tft.drawCentreString(CPUT_data, 403, 135, 1);
+      }
     }
-  }
 
-  if (hdd[0] > warn_hdd) {  //------------------------------------------- GPU USADE
-    tft.setTextColor(TFT_RED);
-    tft.drawCentreString(hdd_data, 75, 280, 1);
-  } else {
-    if(hdd[0] > 0){
-      tft.setTextColor(TFT_GREEN);
-      tft.drawCentreString(hdd_data, 75, 280, 1);
+//------------------------------------------- GPU USADE
+    if (gpu[0] > WARN_GPU) { 
+      tft.setTextColor(TFT_RED);
+      tft.drawCentreString(GPU_data, 75, 280, 1);
     } else {
-      tft.setTextColor(TFT_WHITE);
-      tft.drawCentreString(hdd_data, 75, 280, 1);
+      if(gpu[0] > 0){
+        tft.setTextColor(TFT_GREEN);
+        tft.drawCentreString(GPU_data, 75, 280, 1);
+      } else {
+        tft.setTextColor(TFT_WHITE);
+        tft.drawCentreString(GPU_data, 75, 280, 1);
+      }
     }
-  }
 
-  if (gpu[0] > warn_gpu) { //------------------------------------------- GPU VRAM
-    tft.setTextColor(TFT_RED);
-    tft.drawCentreString(gpu_data, 244, 280, 1);
-  } else {
-    if(gpu[0] > 0){
-      tft.setTextColor(TFT_GREEN);
-      tft.drawCentreString(gpu_data, 244, 280, 1);
+//------------------------------------------- GPU VRAM
+    if (vram[0] > WARN_VRAM) { 
+      tft.setTextColor(TFT_RED);
+      tft.drawCentreString(VRAM_data, 244, 280, 1);
     } else {
-      tft.setTextColor(TFT_WHITE);
-      tft.drawCentreString(gpu_data, 244, 280, 1);
+      if(vram[0] > 0){
+        tft.setTextColor(TFT_GREEN);
+        tft.drawCentreString(VRAM_data, 244, 280, 1);
+      } else {
+        tft.setTextColor(TFT_WHITE);
+        tft.drawCentreString(VRAM_data, 244, 280, 1);
+      }
     }
-  }
 
-  if (procs[0] > warn_procs) { //------------------------------------------- GPU TEMP
-    tft.setTextColor(TFT_RED);
-    tft.drawCentreString(procs_data, 403, 280, 1);
-  } else {
-    if(procs[0] > 0){
-      tft.setTextColor(TFT_GREEN);
-      tft.drawCentreString(procs_data, 403, 280, 1);
+//------------------------------------------- GPU TEMP
+    if (gput[0] > WARN_GPU_TEMP) { 
+      tft.setTextColor(TFT_RED);
+      tft.drawCentreString(GPUT_data, 403, 280, 1);
     } else {
-      tft.setTextColor(TFT_WHITE);
-      tft.drawCentreString(procs_data, 403, 280, 1);
+      if(gput[0] > 0){
+        tft.setTextColor(TFT_GREEN);
+        tft.drawCentreString(GPUT_data, 403, 280, 1);
+      } else {
+        tft.setTextColor(TFT_WHITE);
+        tft.drawCentreString(GPUT_data, 403, 280, 1);
+      }
     }
-  }
 
 }
 
