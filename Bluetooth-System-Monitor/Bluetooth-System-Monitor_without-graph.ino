@@ -144,7 +144,7 @@ void blueCallback() {
 }
 
 void touchCallback() {
-  if(wait_time < 15){
+  if(screen_off != 0){
      touch();
    }
   
