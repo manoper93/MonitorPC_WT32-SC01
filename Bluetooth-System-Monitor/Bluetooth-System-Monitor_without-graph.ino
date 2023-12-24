@@ -200,16 +200,16 @@ void bt(){
 //--------------------------------------------------------------------------------------- VOID NO BT
 
 void no_bt(){
-  if(wait_time == 15 || wait_time == 30){
+  if(wait_time == 30 || wait_time == 60){
      ledcAttachPin(TFT_BL, 1);
-     Serial.println("NO BT DATA RECEIVED - wait_time MAX 120ms: " + String(wait_time));
+     Serial.println("NO BT DATA RECEIVED - wait_time MAX 40000ms: " + String(wait_time));
      touch_times = 0;
-     if(wait_time == 120){
+     if(wait_time == 60){
         sleep_state = 1;
      }
    }
     
-   if(sleep_state == 1 && wait_time == 31 && dontsleep == 0){
+   if(sleep_state == 1 && wait_time == 61 && dontsleep == 0){
      Serial.println("--------------------------------------- IF NO BT SLEEP 1min");
      Serial.println("wait_time: " + String(wait_time));
      Serial.println("touch_times: " + String(touch_times));
@@ -220,7 +220,7 @@ void no_bt(){
      esp_deep_sleep_start();
    }
     
-   if(wait_time <= 30){
+   if(wait_time <= 60){
      Serial.println(wait_time);
      wait_time++;
    }
