@@ -37,6 +37,7 @@ int background = 0;
 
 RTC_DATA_ATTR int sleep_state = 0;
 RTC_DATA_ATTR int ledBrightness = 30;
+RTC_DATA_ATTR int dontsleep = 0;
 int address = 0;
 
 int ymax_cpu = 100; //Perc CPU
@@ -64,10 +65,23 @@ int margin = 40;
 int screenwidth = 480;
 int screenheight = 320;
 
+int volume = 0;
+int chg = 0;
+
+
+#include "Ticker.h"
+
+// Define the ticker objects
+Ticker blueTimer;
+Ticker touchTimer;
+
+// Function prototypes
+void blueCallback();
+void touchCallback();
 //--------------------------------------------------------------------------------------- VOID SETUP
 
 void setup() {
-  // Begin BT Serial
+  Serial.begin(115200);
   BTSerial.begin("SystemMonitorPC"); // You can change this name, but on MacOs make sure to match your port to this name in the script
   EEPROM.begin(512);
 
@@ -109,25 +123,40 @@ Serial.println("touch_times: " + String(touch_times));
 Serial.println("sleep state: " + String(sleep_state));
 Serial.println("ledBrightness state: " + String(ledBrightness));
 Serial.println("---------------------------------------");
+
+  // Set up Touch timer to run every 500 milliseconds (0.5 seconds)
+  blueTimer.attach(0.00001, blueCallback);
+  touchTimer.attach(0.00001, touchCallback);
 }
 
 //--------------------------------------------------------------------------------------- VOID LOOP
 
 void loop() {
-  
-  if (BTSerial.available()) {
+}
+
+void blueCallback() {
+  if(BTSerial.available()) {
     bt();
-    touch();
   } else {
     no_bt();
   }
   
 }
 
+void touchCallback() {
+  if(wait_time <= 100000){
+     touch();
+   }
+  
+  
+  BTSerial.println(volume);
+  BTSerial.write(volume);
+  volume = 0;
+}
+
 //--------------------------------------------------------------------------------------- VOID BT
 
 void bt(){
-   // Esperamos dados no formato: "33,428,8343,16000,68,371"
     String cpu_s = BTSerial.readStringUntil(',');
     String fan_s = BTSerial.readStringUntil(',');
     String ram_s = BTSerial.readStringUntil(',');
@@ -155,31 +184,32 @@ void bt(){
       Serial.println("---------------------------------------");
     }
     
-    if (ram_s.length() > 0) {
-        if(screen_off == 0){
-            ledcAttachPin(TFT_BL, 0);
-        }
-        if (ram[0] != 0 && background == 0) { 
-            Serial.println("-- BT DATA RECEIVED - wait_time MAX 30000ms: " + String(wait_time));
-            updateHomeScreen();
-        }
-    wait_time = 0;
+    if(screen_off == 0){
+      ledcAttachPin(TFT_BL, 0);
     }
+    
+    if (background == 0) { 
+      Serial.println("-- BT DATA RECEIVED - wait_time MAX 30000ms: " + String(wait_time));
+      updateHomeScreen();
+    }
+    
+    wait_time = 0;
+    
 }
 
 //--------------------------------------------------------------------------------------- VOID NO BT
 
 void no_bt(){
-  if(wait_time == 30000 || wait_time == 40000){
+  if(wait_time == 300000 || wait_time == 400000){
      ledcAttachPin(TFT_BL, 1);
      Serial.println("NO BT DATA RECEIVED - wait_time MAX 40000ms: " + String(wait_time));
      touch_times = 0;
-     if(wait_time == 40000){
+     if(wait_time == 400000){
         sleep_state = 1;
      }
    }
     
-   if(sleep_state == 1 && wait_time == 40001){
+   if(sleep_state == 1 && wait_time == 400001 && dontsleep == 0){
      Serial.println("--------------------------------------- IF NO BT SLEEP 1min");
      Serial.println("wait_time: " + String(wait_time));
      Serial.println("touch_times: " + String(touch_times));
@@ -190,8 +220,8 @@ void no_bt(){
      esp_deep_sleep_start();
    }
     
-   if(wait_time <= 40000){
-     delay(1);
+   if(wait_time <= 400000){
+     delay(0.1);
      wait_time++;
    }
 }
@@ -226,91 +256,128 @@ void touch(){
     pressed = true;
   }
 #endif
-
   if (pressed && sleep_state == 0) {
     
     touch_times++;
+    if(touch_times > 2) touch_times = 2;
     
-     if(touch_times > 2) touch_times = 2;
-     
-     if(touch_times == 2){
-      
-      if (t_y < screenheight / 2) {
-        Serial.print("TOP - ");
-        
-        if (t_x < screenwidth / 3) {
-          Serial.println("LEFT"); //------------------------------------------- TOP LEFT
+    if(touch_times == 2){
 
-            touch_times = 0;
-            background = 0;
-            wallpaper();
-
-        } else if (t_x < (screenwidth / 3) * 2) {
-          Serial.println("MIDDLE"); //------------------------------------------- TOP MIDDLE
-      
-            Serial.println("--------------------------------------- 1 day off");
-            Serial.println("wait_time: " + String(wait_time));
-            Serial.println("touch_times: " + String(touch_times));
-            Serial.println("sleep state: " + String(sleep_state));
-            Serial.println("ledBrightness state: " + String(ledBrightness));
-            Serial.println("---------------------------------------");
+      if(background == 1){
+        if (t_y < screenheight / 2) {
+          Serial.print("TOP - ");
             
-            esp_sleep_enable_timer_wakeup(24 * 60 * 60 * 1e6);
-            esp_deep_sleep_start();
-          
-        } else {
-          Serial.println("RIGHT"); //------------------------------------------- TOP RIGHT
-          
-            screen_off = 1;
-            touch_times = 0;
-            ledcAttachPin(TFT_BL, 1);
-        }
-
-      }else{
-       Serial.print("BOTTOM - ");
-        
-        if (t_x < screenwidth / 3) {
-          Serial.println("LEFT"); //------------------------------------------- BOTTOM LEFT
-  
-            if(ledBrightness < 225){
-              ledBrightness += 30;
+          if (t_x < screenwidth / 3) {
+              Serial.println("LEFT (menu1)"); //------------------------------------------- TOP LEFT
+    
+                touch_times = 0;
+                background = 0;
+                wallpaper();
+                delay(0.5);
+    
+            } else if (t_x < (screenwidth / 3) * 2) {
+              Serial.println("MIDDLE (menu1)"); //------------------------------------------- TOP MIDDLE
+    
+                background = 2;
+                wallpaper();
+               
             } else {
-              ledBrightness = 254;
+              Serial.println("RIGHT (menu1)"); //------------------------------------------- TOP RIGHT
+              
+                screen_off = 1;
+                touch_times = 0;
+                ledcAttachPin(TFT_BL, 1);
+                delay(0.5);
             }
-            Serial.println("inc ledBrightness state: " + String(ledBrightness));
-            EEPROM.put(address, ledBrightness);
-            EEPROM.commit();
-            ledcWrite(0, ledBrightness); // Start @ initial Brightness
-          
-        } else if (t_x < (screenwidth / 3) * 2) {
-          Serial.println("MIDDLE"); //------------------------------------------- BOTTOM MIDDLE
-
-            ledBrightness = 30;
-            Serial.println("default ledBrightness state: " + String(ledBrightness));
-            EEPROM.put(address, ledBrightness);
-            EEPROM.commit();
-            ledcWrite(0, ledBrightness); // Start @ initial Brightness
-
-        } else {
-          Serial.println("RIGHT"); //------------------------------------------- BOTTOM RIGHT
+    
+          }else{
+           Serial.print("BOTTOM - ");
             
-             if(ledBrightness >= 60){
-              ledBrightness -= 30;
+            if (t_x < screenwidth / 3) {
+              Serial.println("LEFT (menu1)"); //------------------------------------------- BOTTOM LEFT
+                if(ledBrightness < 225){
+                  ledBrightness += 30;
+                  if(ledBrightness == 40) ledBrightness = 30;
+                } else {
+                  ledBrightness = 254;
+                }
+                Serial.println("inc ledBrightness state: " + String(ledBrightness));
+                EEPROM.put(address, ledBrightness);
+                EEPROM.commit();
+                ledcWrite(0, ledBrightness); // Start @ initial Brightness
+                delay(0.5);
+              
+            } else if (t_x < (screenwidth / 3) * 2) {
+              Serial.println("MIDDLE (menu1)"); //------------------------------------------- BOTTOM MIDDLE
+    
+                ledBrightness = 10;
+                Serial.println("default ledBrightness state: " + String(ledBrightness));
+                EEPROM.put(address, ledBrightness);
+                EEPROM.commit();
+                ledcWrite(0, ledBrightness); // Start @ initial Brightness
+                delay(0.5);
+    
             } else {
-              ledBrightness = 30;
+              Serial.println("RIGHT (menu1)"); //------------------------------------------- BOTTOM RIGHT
+                
+                 if(ledBrightness >= 60){
+                  ledBrightness -= 30;
+                } else {
+                  ledBrightness = 30;
+                }
+                Serial.println("dec ledBrightness state: " + String(ledBrightness));
+                EEPROM.put(address, ledBrightness);
+                EEPROM.commit();
+                ledcWrite(0, ledBrightness); // Start @ initial Brightness
+                delay(0.5);
+              
             }
-            Serial.println("dec ledBrightness state: " + String(ledBrightness));
-            EEPROM.put(address, ledBrightness);
-            EEPROM.commit();
-            ledcWrite(0, ledBrightness); // Start @ initial Brightness
-          
-        }
+    
+          }
+
+      
+      } else if(background == 2){
+        
+         if (t_y < screenheight / 2) {
+            Serial.print("TOP - ");
+        
+            if (t_x < screenwidth / 3) {
+                Serial.println("LEFT (menu2)"); //------------------------------------------- TOP LEFT
+                background = 1;
+                wallpaper();
+                
+              } else if (t_x < (screenwidth / 3) * 2) {
+                Serial.println("MIDDLE (menu2)"); //------------------------------------------- TOP MIDDLE
+                
+              } else {
+                Serial.println("RIGHT (menu2)"); //------------------------------------------- TOP RIGHT
+                
+              }
+      
+            }else{
+             Serial.print("BOTTOM - ");
+              
+              if (t_x < screenwidth / 3) {
+                Serial.println("LEFT (menu2)"); //------------------------------------------- BOTTOM LEFT
+                volume = 1;
+                
+              } else if (t_x < (screenwidth / 3) * 2) {
+                Serial.println("MIDDLE (menu2)"); //------------------------------------------- BOTTOM MIDDLE          
+                volume = 3;
+                
+              } else {
+                Serial.println("RIGHT (menu2)"); //------------------------------------------- BOTTOM RIGHT       
+                volume = 2;
+                
+              }
+      
+            }
 
       }
       delay(100);
       pressed = false;
-      
-    }else if(touch_times == 1){
+
+    } else if(touch_times == 1){
       
       if(screen_off == 0){
         ledcAttachPin(TFT_BL, 0);
@@ -327,6 +394,7 @@ void touch(){
     }
   }
 }
+
 
 //--------------------------------------------------------------------------------------- VOID LCD
 
@@ -361,9 +429,12 @@ void wallpaper(){
   if(background == 0){
     drawBmp("/bg.bmp", 0, 0);
     Serial.println("Background drawn - HOME");
-  } else {
+  } else if(background == 1){
     drawBmp("/bg2.bmp", 0, 0);
     Serial.println("Background drawn - MENU");
+  } else if(background == 2){
+    drawBmp("/bg3.bmp", 0, 0);
+    Serial.println("Background drawn - TOOLS");
   }
 }
 
