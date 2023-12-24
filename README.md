@@ -4,6 +4,15 @@ https://discord.gg/2m7MY99G4a
 
 ----------------------------------------------------
 
+![20231216_165225](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5e0b145b-2e3d-4ac8-bada-682d0c357439)
+![20231224_153449](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/81d554e5-765b-45ec-88be-b316deb17acc)
+![20231224_153456](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5eaaf4bc-2907-4faf-8a2e-b04c7dccf877)
+
+previous version:
+https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5def5f05-91fd-4214-964a-ca262b48f526
+
+----------------------------------------------------
+
 Last Update - 24/12/2023:
 	Monitor.py:
  		connection rx and tx now you have volume controle, add 2 timers
@@ -22,13 +31,9 @@ Last Update - 24/12/2023:
 
 16/12/2023:
 	simplify code, fix wait_time, fix blink screen, add second background for menu (finished)
- 
-![20231216_165225](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/29cafab6-9d5f-4d99-8d30-100734acd588)
-
-![20231216_165232](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/e9124018-6456-4f78-adbd-62f16f2c43de)
 
 In the end of the video it enters in sleep mode 1 day!
-https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5def5f05-91fd-4214-964a-ca262b48f526
+
 
 --------------------------
 
