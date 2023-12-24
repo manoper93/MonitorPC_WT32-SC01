@@ -4,7 +4,15 @@ https://discord.gg/2m7MY99G4a
 
 ----------------------------------------------------
 
-Last Update - 20/12/2023:
+Last Update - 24/12/2023:
+	Monitor.py:
+ 		connection rx and tx now you have volume controle, add 2 timers
+   	arduino:
+    		add second menu, add 2 timers, add volume controle
+
+----------------------------------------------------
+
+20/12/2023:
 	Monitor.py:
  		extern file COM.txt to change PORT COM (order; COM RX, enter, COM TX);
  		more fast update data;
