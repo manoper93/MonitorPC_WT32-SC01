@@ -170,11 +170,10 @@ void bt(){
     if(vram_s.toInt() <= MAX_VRAM)     vram[0] = vram_s.toInt();
     if(gput_s.toInt() <= MAX_CPU)      gput[0] = gput_s.toInt();
 
-    if(sleep_state == 1 || screen_start == 0){
+    if(sleep_state >= 1 || screen_start == 0){
       screen_start = 1;
       background = 0;
       lcd();
-      sleep_state = 0;
       touch_times = 0;
       Serial.println("---------------------------------------IF BT DATA RECEIVED AFTER SLEEP, TURN ON SCREEN");
       Serial.println("wait_time: " + String(wait_time));
@@ -192,7 +191,8 @@ void bt(){
       Serial.println("-- BT DATA RECEIVED - wait_time MAX 60ms: " + String(wait_time));
       updateHomeScreen();
     }
-    
+  
+    sleep_state = 0;
     wait_time = 0;
     
 }
