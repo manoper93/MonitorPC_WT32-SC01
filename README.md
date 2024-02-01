@@ -71,9 +71,6 @@ NOW:
 ![20231224_153449](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/81d554e5-765b-45ec-88be-b316deb17acc)
 ![20231224_153456](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5eaaf4bc-2907-4faf-8a2e-b04c7dccf877)
 
-previous version:
-https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5def5f05-91fd-4214-964a-ca262b48f526
-
 ----------------------------------------------------
 
 MonitorPC with support WT32-SC01
