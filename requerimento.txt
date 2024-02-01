@@ -1,5 +1,0 @@
-AFTER INSTALL PYTHON, OPEN CMD AND INSTALL:
-
-pip install serial
-pip install psutil
-﻿pip install pythonnet
