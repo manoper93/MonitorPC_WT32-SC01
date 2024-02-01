@@ -37,7 +37,7 @@ int screen_off = 0;
 int background = 0;
 
 RTC_DATA_ATTR int sleep_state = 3;
-RTC_DATA_ATTR int ledBrightness = 30;
+RTC_DATA_ATTR int ledBrightness = 10;
 RTC_DATA_ATTR int dontsleep = 0;
 int address = 0;
 
@@ -84,7 +84,7 @@ void setup() {
 
   // If the data is not valid (e.g., first run), initialize yourVariable to a default value
   if (ledBrightness < 0 || ledBrightness > 254) {
-    ledBrightness = 30;
+    ledBrightness = 2;
     EEPROM.put(address, ledBrightness);
     EEPROM.commit();
   }
@@ -176,7 +176,7 @@ void bt(){
     }
     
     if (background == 0) { 
-      Serial.println("-- BT DATA RECEIVED - wait_time MAX 60ms: " + String(wait_time));
+      Serial.println("-- BT DATA RECEIVED - wait_time MAX 90ms: " + String(wait_time));
       updateHomeScreen();
     }
     
@@ -188,24 +188,24 @@ void bt(){
 //--------------------------------------------------------------------------------------- VOID NO BT
 
 void no_bt(){
-  if(wait_time == 30 || wait_time == 60){
+  if(wait_time == 60 || wait_time == 90){
      ledcAttachPin(TFT_BL, 1);
      sleep_state = 1;
-     if(wait_time == 60){
+     if(wait_time == 90){
         sleep_state = 2;
      }
      touch_times = 0;
    }
     
-   if(sleep_state == 2 && wait_time == 61 && dontsleep == 0){
-     Serial.println("--------------------------------------- IF NO BT SLEEP 1min");
+   if(sleep_state == 2 && wait_time == 91 && dontsleep == 0){
+     Serial.println("--------------------------------------- IF NO BT SLEEP 90ms");
      serialprint();
      esp_sleep_enable_timer_wakeup(60e6); // 1 minute in microseconds
      esp_deep_sleep_start();
    }
     
-   if(wait_time <= 60){
-     Serial.println("NO BT DATA RECEIVED - wait_time MAX 60ms: " + String(wait_time));
+   if(wait_time <= 90){
+     Serial.println("NO BT DATA RECEIVED - wait_time MAX 90ms: " + String(wait_time));
      wait_time++;
    }
 }
@@ -257,7 +257,7 @@ void touch(){
                 touch_times = 0;
                 background = 0;
                 wallpaper();
-                delay(50);
+                delay(10);
     
             } else if (t_x < (screenwidth / 3) * 2) {
               Serial.println("MIDDLE (menu1)"); //------------------------------------------- TOP MIDDLE
@@ -272,7 +272,7 @@ void touch(){
                 screen_off = 1;
                 touch_times = 0;
                 ledcAttachPin(TFT_BL, 1);
-                delay(50);
+                delay(1000);
             }
     
           }else{
@@ -280,10 +280,10 @@ void touch(){
             
             if (t_x < screenwidth / 3) {
               Serial.println("LEFT (menu1)"); //------------------------------------------- BOTTOM LEFT
-                if(ledBrightness <= 245){
-                  ledBrightness += 10;
+                if(ledBrightness <= 252){
+                  ledBrightness += 2;
                 } else {
-                  ledBrightness = 255;
+                  ledBrightness = 254;
                 }
                 Serial.println("inc ledBrightness state: " + String(ledBrightness));
                 EEPROM.put(address, ledBrightness);
@@ -294,7 +294,7 @@ void touch(){
             } else if (t_x < (screenwidth / 3) * 2) {
               Serial.println("MIDDLE (menu1)"); //------------------------------------------- BOTTOM MIDDLE
     
-                ledBrightness = 10;
+                ledBrightness = 2;
                 Serial.println("default ledBrightness state: " + String(ledBrightness));
                 EEPROM.put(address, ledBrightness);
                 EEPROM.commit();
@@ -304,10 +304,10 @@ void touch(){
             } else {
               Serial.println("RIGHT (menu1)"); //------------------------------------------- BOTTOM RIGHT
                 
-                 if(ledBrightness >= 20){
-                  ledBrightness -= 10;
+                if(ledBrightness >= 4){
+                  ledBrightness -= 2;
                 } else {
-                  ledBrightness = 10;
+                  ledBrightness = 2;
                 }
                 Serial.println("dec ledBrightness state: " + String(ledBrightness));
                 EEPROM.put(address, ledBrightness);
@@ -328,7 +328,7 @@ void touch(){
                 Serial.println("LEFT (menu2)"); //------------------------------------------- TOP LEFT
                 background = 1;
                 wallpaper();
-                delay(50);
+                delay(10);
                 
               } else if (t_x < (screenwidth / 3) * 2) {
                 Serial.println("MIDDLE (menu2)"); //------------------------------------------- TOP MIDDLE
@@ -345,7 +345,7 @@ void touch(){
               if (t_x < screenwidth / 3) {
                 Serial.println("LEFT (menu2)"); //------------------------------------------- BOTTOM LEFT
                 volume = 1;
-                delay(10);
+                delay(20);
                 
               } else if (t_x < (screenwidth / 3) * 2) {
                 Serial.println("MIDDLE (menu2)"); //------------------------------------------- BOTTOM MIDDLE          
@@ -355,7 +355,7 @@ void touch(){
               } else {
                 Serial.println("RIGHT (menu2)"); //------------------------------------------- BOTTOM RIGHT       
                 volume = 2;
-                delay(10);
+                delay(20);
                 
               }
       
