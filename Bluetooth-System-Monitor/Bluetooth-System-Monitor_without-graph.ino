@@ -390,9 +390,9 @@ void lcd(){
   
   ledcSetup(0, 5000, 8);
 #ifdef TFT_BL
-  ledcAttachPin(TFT_BL, 0);
+  ledcAttachPin(TFT_BL, 1);
 #else
-  ledcAttachPin(backlightPin, 0);
+  ledcAttachPin(backlightPin, 1);
 #endif
   ledcWrite(0, ledBrightness);
 
