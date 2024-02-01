@@ -4,15 +4,6 @@ https://discord.gg/2m7MY99G4a
 
 ----------------------------------------------------
 
-![20231216_165225](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5e0b145b-2e3d-4ac8-bada-682d0c357439)
-![20231224_153449](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/81d554e5-765b-45ec-88be-b316deb17acc)
-![20231224_153456](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5eaaf4bc-2907-4faf-8a2e-b04c7dccf877)
-
-previous version:
-https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5def5f05-91fd-4214-964a-ca262b48f526
-
-----------------------------------------------------
-
 Last Update - 01/02/2024:
 	Fix hard flash screen turn on (also need to comment in file TFT_eSPI.cpp line 789 and 796)
 
@@ -40,22 +31,22 @@ Last Update - 01/02/2024:
 In the end of the video it enters in sleep mode 1 day!
 
 
---------------------------
+----------------------------------------------------
 
 15/12/2023:
 	a lot of changes, add second background for menu (testing)
 
---------------------------
+----------------------------------------------------
 
 09/12/2023:
 	add ledBrightness touch for inc or dec level (save on EEPROM), add sleep for 1 day touch option (not auto)
  
---------------------------
+----------------------------------------------------
 
 08/12/2023:
 	add deep sleep 1min when bt not receive data (wakes every 1min after for check data)
 
---------------------------
+----------------------------------------------------
 
 01/12/2023:
 	Arduino code without graphshowing and this code have:
@@ -64,7 +55,7 @@ In the end of the video it enters in sleep mode 1 day!
  
 	For all arduino code background multioption with better quality.
 
---------------------------
+----------------------------------------------------
 14/08/2023:
 	https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/4122fc66-a44e-4120-bc2f-43a21ca1c50c
 
@@ -72,7 +63,18 @@ In the end of the video it enters in sleep mode 1 day!
 First Update - 05/03/2023:
 	![20230221_195041aa](https://user-images.githubusercontent.com/70864023/222975950-0b791d5f-fe44-46d5-a8be-7de803ef2561.jpg)
 
---------------------------
+----------------------------------------------------
+
+NOW:
+
+![20231216_165225](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5e0b145b-2e3d-4ac8-bada-682d0c357439)
+![20231224_153449](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/81d554e5-765b-45ec-88be-b316deb17acc)
+![20231224_153456](https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5eaaf4bc-2907-4faf-8a2e-b04c7dccf877)
+
+previous version:
+https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5def5f05-91fd-4214-964a-ca262b48f526
+
+----------------------------------------------------
 
 MonitorPC with support WT32-SC01
 
