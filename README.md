@@ -13,7 +13,12 @@ https://github.com/manoper93/MonitorPC_WT32-SC01/assets/70864023/5def5f05-91fd-4
 
 ----------------------------------------------------
 
-Last Update - 24/12/2023:
+Last Update - 01/02/2024:
+	Fix hard flash screen turn on (also need to comment in file TFT_eSPI.cpp line 789 and 796)
+
+----------------------------------------------------
+
+24/12/2023:
 	Monitor.py:
  		connection rx and tx now you have volume controle, add 2 timers
    	arduino:
