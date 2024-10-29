@@ -1,7 +1,3 @@
-Hello everyone, this discord was created for project purposes, comments for improvement and new ideas will be welcome.
-
-https://discord.gg/2m7MY99G4a
-
 ATTENTION, STARTS WITH SCREEN OFF WAITING FOR DATA!!!
 
 ----------------------------------------------------
