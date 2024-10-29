@@ -79,13 +79,6 @@ First Update - 05/03/2023:
 
 MonitorPC with support WT32-SC01
 
-This Project is Modified by me, with permission to publish from Creator DustinWatts : https://github.com/DustinWatts
-I have to thank Dustin Watts, Raycast and Iron Man for the help via discord.
-
-If you need help: https://discord.gg/RE3XevS
-
-![Captura de ecrã 2023-03-05 130838](https://user-images.githubusercontent.com/70864023/222975829-b03009bb-b252-49b1-9d80-63daa47c2fa2.png)
-
 FOLLOW THE STEPS TO INSTALL THE PC MONITOR:
 
     1. Install python 3.x and Arduino IDE 1.8.19 (not > v2);
