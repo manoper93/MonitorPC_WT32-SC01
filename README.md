@@ -8,9 +8,7 @@ The project focuses on integrating the **WT32-SC01** board as a Bluetooth-enable
 This description highlights the core features and the integration of the **WT32-SC01** with **Bluetooth** and a **GUI** for system monitoring.
 
 
-## MonitorPC with support WT32-SC01
-
-**FOLLOW THE STEPS TO INSTALL THE PC MONITOR:**
+## FOLLOW THE STEPS TO INSTALL:
 
     1. Install python 3.x and Arduino IDE 1.8.19 (not > v2);
 
