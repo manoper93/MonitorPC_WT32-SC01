@@ -1,12 +1,111 @@
-# MonitorPC for WT32-SC01
-**Bluetooth System Monitor**
+# WT32-SC01: SystemMonitorPC Edition
 
-The project focuses on integrating the **WT32-SC01** board as a Bluetooth-enabled system monitor. It features an intuitive graphical user interface (GUI) for monitoring various data from connected devices. The project includes support for **Arduino** code, touch control for adjusting brightness and data settings, and Python scripts for enhanced functionality. It allows users to monitor, control, and visualize device data in real-time, with features like **deep sleep modes** and **data updates**.
+This project implements a **System Monitor** for PC resource tracking, utilizing the WT32-SC01 hardware. It includes Bluetooth connectivity, touch interaction, and a TFT-based visual interface for displaying system statistics like CPU, RAM, GPU usage, and temperatures.
 
---- 
+---
 
-This description highlights the core features and the integration of the **WT32-SC01** with **Bluetooth** and a **GUI** for system monitoring.
+## **Project Objective**
+The aim of this project is to create a functional system monitor interface that:
 
+- Displays real-time CPU, RAM, and GPU metrics.
+- Provides Bluetooth connectivity for receiving data from a PC.
+- Implements an intuitive touch interface.
+- Enables persistent settings storage using EEPROM.
+- Features a dynamic and responsive UI with multiple screens.
+
+---
+
+## **Structure Overview**
+### **Key Components**
+- **Bluetooth Integration**: Communication with a PC to receive system metrics.
+- **TFT Display**: Visualization of resource usage with a responsive interface.
+- **Capacitive Touch Support**: Interaction through touch gestures.
+- **EEPROM**: Persistent storage for user settings.
+- **SPIFFS Filesystem**: Storage for UI assets like background images.
+
+### **Libraries Used**
+- **BluetoothSerial**: For Bluetooth communication.
+- **TFT_eSPI**: For controlling the TFT display.
+- **FT6236**: Capacitive touch controller.
+- **SPIFFS**: Filesystem for storing calibration and UI assets.
+- **EEPROM**: For non-volatile storage of settings.
+
+### **Libraries Used in Python**
+- **`asyncio`**: For asynchronous task management.
+- **`serial`**: For serial communication over Bluetooth.
+- **`wmi`**: To retrieve system metrics.
+- **`pycaw`**: For managing audio settings.
+- **`logging`**: For error handling and debugging.
+
+---
+
+## 🛠️ **Hardware Requirements**
+- **WT32-SC01**: Microcontroller with integrated touch and display.
+- **PC**: Sends system metrics via Bluetooth.
+
+---
+
+## 🔧 **Features Implemented**
+1. **Real-Time System Monitoring**: Tracks and displays CPU, RAM, and GPU usage.
+2. **Touchscreen Interaction**: Navigate between different screens and adjust settings using touch gestures.
+3. **Bluetooth Communication**: Receives data from a PC application.
+4. **Persistent Settings**: Stores brightness levels and other user preferences in EEPROM.
+5. **Dynamic UI**: Updates metrics and backgrounds in real time.
+
+---
+
+## 📚 **Code Overview**
+### **Key Variables**
+- **MAX_CPU, MAX_RAM, MAX_GPU**: Maximum thresholds for usage metrics.
+- **WARN_CPU, WARN_RAM, WARN_GPU**: Warning thresholds for resource usage.
+- **RTC_DATA_ATTR**: Retains data during deep sleep.
+
+### **Python Script Functions**
+- **`rx_tx_com_ports_from_file`**: Reads the COM port from a file.
+- **`change_volume`**: Adjusts system volume via the Pycaw library.
+- **`sendData`**: Sends CPU, RAM, and GPU metrics to the WT32-SC01.
+- **`recetor`**: Receives data from WT32-SC01 and processes commands.
+- **`get_hardware_info`**: Fetches hardware metrics using WMI and LibreHardwareMonitor.
+- **`recetor_task`**: Handles asynchronous reception and processing of data.
+
+
+### **Main Functions**
+#### Initialization
+- `setup()`: Initializes Bluetooth, SPIFFS, touch, and TFT display.
+- `lcd()`: Sets up the TFT display and loads the UI.
+
+#### Bluetooth Communication
+- `bt()`: Handles incoming data from the PC.
+- `no_bt()`: Manages scenarios when no Bluetooth data is received.
+
+#### Touch Interaction
+- `touch()`: Processes touch input for navigating the UI and adjusting settings.
+
+#### UI Updates
+- `updateHomeScreen()`: Updates CPU, RAM, and GPU usage values on the home screen.
+- `wallpaper()`: Loads background images based on the current UI state.
+
+#### Data Persistence
+- `EEPROM.get()` and `EEPROM.put()`: Store and retrieve brightness levels and other settings.
+
+### **Timers and Callbacks**
+- **`blueTimer`**: Monitors Bluetooth communication.
+- **`touchTimer`**: Handles touch input and screen state management.
+
+---
+
+
+## 🎯 **Next Steps**
+- Integrate additional metrics like network usage.
+- Implement advanced gesture-based controls.
+- Optimize Bluetooth communication for higher data rates.
+- Add power-saving modes for prolonged operation.
+
+---
+
+Thank you for exploring this project! 💡
+
+---
 
 ## FOLLOW THE STEPS TO INSTALL:
 
