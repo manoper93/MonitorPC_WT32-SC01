@@ -4,7 +4,7 @@ This project implements a **System Monitor** for PC resource tracking, utilizing
 
 ---
 
-## **Project Objective**
+## 🌟 **Project Objective**
 The aim of this project is to create a functional system monitor interface that:
 
 - Displays real-time CPU, RAM, and GPU metrics.
@@ -15,7 +15,7 @@ The aim of this project is to create a functional system monitor interface that:
 
 ---
 
-## **Structure Overview**
+## 📂 **Structure Overview**
 ### **Key Components**
 - **Bluetooth Integration**: Communication with a PC to receive system metrics.
 - **TFT Display**: Visualization of resource usage with a responsive interface.
