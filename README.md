@@ -1,4 +1,4 @@
-# WT32-SC01: SystemMonitorPC Edition
+# 🔥 WT32-SC01: SystemMonitorPC Edition
 
 This project implements a **System Monitor** for PC resource tracking, utilizing the WT32-SC01 hardware. It includes Bluetooth connectivity, touch interaction, and a TFT-based visual interface for displaying system statistics like CPU, RAM, GPU usage, and temperatures.
 
